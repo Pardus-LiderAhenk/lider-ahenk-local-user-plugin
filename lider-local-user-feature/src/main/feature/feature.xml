@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	DO NOT MODIFY THIS FILE UNLESS ABSOLUTELY NECESSARY!
+	HOW TO INSTALL BUNDLES INTO KARAF:
+
+	feature:repo-add  mvn:tr.org.liderahenk/lider-local-user-feature/1.0.0/xml/features
+	feature:install lider-local-user
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+       http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    DO NOT MODIFY THIS FILE UNLESS ABSOLUTELY NECESSARY!
+-->
+<features name="${project.artifactId}-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <feature name="lider-local-user" version="${project.version}">
+        <feature>lider-local-user-dependencies</feature>
+       	<feature>lider-local-user-bundles</feature>
+    </feature>
+
+    <feature name="lider-local-user-bundles" version="${project.version}">
+		<bundle>mvn:tr.org.liderahenk/lider-local-user/${project.version}</bundle>
+		<bundle>mvn:tr.org.liderahenk/lider-local-user-db/${project.version}</bundle>
+		<configfile finalname="/etc/tr.org.liderahenk.localuser.cfg">mvn:tr.org.liderahenk/lider-local-user/${project.version}/cfg</configfile>
+    </feature>
+
+    <feature name="lider-local-user-dependencies" version="${project.version}">
+		<bundle>mvn:org.codehaus.jackson/jackson-core-asl/1.9.13</bundle>
+		<bundle>mvn:org.codehaus.jackson/jackson-mapper-asl/1.9.13</bundle>
+    </feature>
+
+</features>

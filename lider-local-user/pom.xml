@@ -1,0 +1,106 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>tr.org.liderahenk</groupId>
+		<artifactId>local-user</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<artifactId>lider-local-user</artifactId>
+	<url>http://www.liderahenk.org.tr</url>
+	<packaging>bundle</packaging>
+
+	<properties>
+		<!-- needed for checkstyle/findbugs -->
+		<main.basedir>${project.basedir}/..</main.basedir>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>tr.org.liderahenk</groupId>
+			<artifactId>lider-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.aries.blueprint</groupId>
+			<artifactId>org.apache.aries.blueprint</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jpa_2.0_spec</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>${maven.resources.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>filter</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>resources</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>${build.helper.maven.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<file>target/classes/tr.org.liderahenk.localuser.cfg</file>
+									<type>cfg</type>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<_removeheaders>Import-Service,Export-Service</_removeheaders>
+						<Bundle-SymbolicName>lider-local-user</Bundle-SymbolicName>
+						<Bundle-Version>1.0.0</Bundle-Version>
+						<!-- There is a bug that imports packages reside in the bundle. Here we prevent this: -->
+						<Import-Package>!tr.org.liderahenk.localuser.*, *</Import-Package>
+						<!-- If the plugin also have a *-db bundle, then use this line instead: -->
+						<Import-Package>tr.org.liderahenk.localuser.entities.*, !tr.org.liderahenk.localuser.*, *</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

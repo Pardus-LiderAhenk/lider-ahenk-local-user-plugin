@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>tr.org.liderahenk</groupId>
+		<artifactId>local-user</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<artifactId>ahenk-local-user</artifactId>
+	<url>http://www.liderahenk.org.tr</url>
+	<packaging>pom</packaging>
+
+
+	<build>
+	 <!-- To use the plugin goals, add the following in your POM or parent POM -->
+	 <plugins>
+		 <plugin>
+			 <groupId>net.sf.debian-maven</groupId>
+			 <artifactId>debian-maven-plugin</artifactId>
+			 <version>1.0.6</version>
+			 <configuration>
+				 <!--
+				 <packageName>my-package</packageName>
+				 <packageVersion>1.0.0</packageVersion>
+				 ...
+				 -->
+			 </configuration>
+		 </plugin>
+	 </plugins>
+ </build>
+
+</project>

@@ -1,0 +1,13 @@
+Source: local-user
+Section: unknown
+Priority: optional
+Maintainer: TUBITAK ULAKBIM
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: http://www.liderahenk.org.tr
+
+Package: ahenk-local-user
+Version: 1.0.0
+Architecture: any
+Depends: python3 (>= 3)
+Description: Lider Ahenk ahenk-local-user plugin

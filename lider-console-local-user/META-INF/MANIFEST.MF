@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: lider-console-local-user;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: javax.inject;bundle-version="1.0.0",
+ org.eclipse.core.runtime,
+ org.eclipse.e4.core.di;bundle-version="1.3.0",
+ org.eclipse.e4.core.contexts,
+ org.eclipse.e4.ui.model.workbench,
+ org.eclipse.jface,
+ org.apache.commons.lang3;bundle-version="3.1.0",
+ org.eclipse.e4.ui.di;bundle-version="1.0.0",
+ org.apache.directory.api.ldap.model;bundle-version="1.0.0",
+ org.eclipse.ui.workbench,
+ org.eclipse.swt,
+ org.eclipse.ui;bundle-version="3.105.0",
+ org.apache.directory.studio.ldapbrowser.ui;bundle-version="2.0.0",
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors,
+ org.apache.directory.studio.ldapbrowser.core,
+ org.eclipse.e4.core.services,
+ org.eclipse.osgi.services,
+ org.eclipse.core.expressions,
+ org.eclipse.e4.ui.workbench,
+ org.slf4j.api,
+ tr.org.liderahenk.liderconsole.core,
+ org.codehaus.jackson.core,
+ org.codehaus.jackson.mapper
+Bundle-Vendor: Agem Bilişim
+Bundle-Name: Lider Ahenk LocalUser Plugin
