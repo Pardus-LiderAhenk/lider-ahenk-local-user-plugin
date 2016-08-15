@@ -4,8 +4,8 @@ local-user plugin for [Lider Ahenk project](http://www.liderahenk.org.tr).
 
 |                   | **user-oriented** | **machine-oriented** |
 |:-----------------:|:-----------------:|:--------------------:|
-| **task plugin**   |        x          |           x          |
-| **policy plugin** |        x          |           x          |
+| **task plugin**   |                   |           x          |
+| **policy plugin** |                   |                      |
 
 ## How to Build
 
