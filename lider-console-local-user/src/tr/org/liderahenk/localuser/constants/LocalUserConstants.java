@@ -6,4 +6,12 @@ public class LocalUserConstants {
 	
 	public static final String PLUGIN_VERSION = "1.0.0";
 	
+	public static final class PARAMETERS {
+		public static final String USERNAME = "username";
+		public static final String PASSWORD = "passsword";
+		public static final String HOME = "home";
+		public static final String ACTIVE = "active";
+		public static final String GROUPS = "groups";
+	}
+	
 }

@@ -10,11 +10,6 @@
       </category>         
       <command
             categoryId="tr.org.liderahenk.liderconsole.commands.category"
-            id="tr.org.liderahenk.liderconsole.commands.LocalUserProfile"            
-            name="%command.profile">
-      </command>
-      <command
-            categoryId="tr.org.liderahenk.liderconsole.commands.category"
             id="tr.org.liderahenk.liderconsole.commands.LocalUserTask"            
             name="%command.task">
       </command>
@@ -24,27 +19,6 @@
        point="org.eclipse.ui.handlers">
 
 		<!-- Profile handler -->
-       	<handler
-            class="tr.org.liderahenk.localuser.handlers.LocalUserProfileHandler"
-            commandId="tr.org.liderahenk.liderconsole.commands.LocalUserProfile">
-           <!-- TODO Uncomment this after updating/fixing LiderSourceProvider -->
-		   <!-- <enabledWhen>
-				<and>
-		          <with
-		                variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.available">
-		             <equals
-		                   value="true">
-		             </equals>
-		          </with>
-				<with
-	                variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isAhenkSelected">
-	             	<equals
-		                   value="true">
-		            </equals>
-	          	</with>
-		       </and>
-		    </enabledWhen> -->        
-      	</handler>
       	
       	<!-- Task handler -->
        <handler
@@ -75,50 +49,16 @@
          point="org.eclipse.ui.menus">
 
 		<!-- Add menu command for "profile definition" dialog -->
-		<menuContribution
-            locationURI="menu:tr.org.liderahenk.liderconsole.menus.ProfileDefinition?after=additions">
- 				<command
-                  commandId="tr.org.liderahenk.liderconsole.commands.LocalUserProfile"
-                  id="tr.org.liderahenk.liderconsole.commands.LocalUserProfile"
-                  tooltip="%command.profile">
-                  <!-- TODO Uncomment this after updating/fixing LiderSourceProvider -->
-				  <!-- <visibleWhen>
-					   <and>
-			                <iterate operator="or">		
-			                	<or>
-							  	<with
-					                variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isSearchSelected">
-						             <equals
-						                   value="true">
-						             </equals>
-					          	</with>
-					          	<with
-					                variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isEntrySelected">
-						             <equals
-						                   value="true">
-						             </equals>
-					          	</with>
-					        	</or>
-					        </iterate>
-							<with
-				                variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isAhenkSelected">
-				             	<equals
-					                   value="true">
-					            </equals>
-				          	</with>
-					    </and>
-					</visibleWhen> -->               
-           		</command>
-		</menuContribution>
       
       	<!-- Add extension point contribution for "task execution" dialogs -->
 		<menuContribution
       		allPopups="false"
             locationURI="popup:tr.org.liderahenk.liderconsole.menus.ApplyTask?after=additions">
  				<command
-                  commandId="tr.org.liderahenk.liderconsole.commands.LocalUserTask"
-                  id="tr.org.liderahenk.liderconsole.commands.LocalUserTask"
-                  tooltip="%command.task">
+           commandId="tr.org.liderahenk.liderconsole.commands.LocalUserTask"
+           icon="icons/16/users.png"
+           id="tr.org.liderahenk.liderconsole.commands.LocalUserTask"
+           tooltip="%command.task">
                   <!-- TODO Uncomment this after updating/fixing LiderSourceProvider -->
 				  <!-- <visibleWhen>
 					   <and>
@@ -151,9 +91,5 @@
   </extension>
   
 	<!-- Add extension point contribution for "policy execution" dialogs -->
-	<extension
-  		point="tr.org.liderahenk.liderconsole.core.policymenu">
-  		<policyItem label="%command.profile" pluginName="local-user" pluginVersion="1.0.0" profileCommandId="tr.org.liderahenk.liderconsole.commands.LocalUserProfile" />
-  	</extension>
   	
 </plugin>
