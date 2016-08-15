@@ -33,11 +33,25 @@
 	<bean id="LocalUserCommand" class="tr.org.liderahenk.localuser.commands.LocalUserCommand">
 		<property name="resultFactory" ref="resultFactory" />
 		<property name="pluginInfo" ref="pluginInfoImpl" />
-		<property name="logService" ref="logService" />
-		<property name="pluginDbService" ref="pluginDbService" />
+	</bean>
+	
+	<service ref="AddUserCommand" interface="tr.org.liderahenk.lider.core.api.plugin.ICommand" />
+	<bean id="AddUserCommand" class="tr.org.liderahenk.localuser.commands.AddUserCommand">
+		<property name="resultFactory" ref="resultFactory" />
+		<property name="pluginInfo" ref="pluginInfoImpl" />
+	</bean>
+	
+	<service ref="EditUserCommand" interface="tr.org.liderahenk.lider.core.api.plugin.ICommand" />
+	<bean id="EditUserCommand" class="tr.org.liderahenk.localuser.commands.EditUserCommand">
+		<property name="resultFactory" ref="resultFactory" />
+		<property name="pluginInfo" ref="pluginInfoImpl" />
+	</bean>
+	
+	<service ref="DeleteUserCommand" interface="tr.org.liderahenk.lider.core.api.plugin.ICommand" />
+	<bean id="DeleteUserCommand" class="tr.org.liderahenk.localuser.commands.DeleteUserCommand">
+		<property name="resultFactory" ref="resultFactory" />
+		<property name="pluginInfo" ref="pluginInfoImpl" />
 	</bean>
 
-	<reference id="pluginDbService" interface="tr.org.liderahenk.lider.core.api.persistence.IPluginDbService" />
-	<reference id="logService" interface="tr.org.liderahenk.lider.core.api.log.IOperationLogService" />
 	<reference id="resultFactory" interface="tr.org.liderahenk.lider.core.api.service.ICommandResultFactory" />
 </blueprint>

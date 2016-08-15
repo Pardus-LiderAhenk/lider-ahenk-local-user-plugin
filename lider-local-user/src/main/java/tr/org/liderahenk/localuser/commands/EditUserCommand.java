@@ -9,7 +9,7 @@ import tr.org.liderahenk.lider.core.api.service.ICommandResult;
 import tr.org.liderahenk.lider.core.api.service.ICommandResultFactory;
 import tr.org.liderahenk.lider.core.api.service.enums.CommandResultStatus;
 
-public class LocalUserCommand implements ICommand {
+public class EditUserCommand implements ICommand {
 
 	private IPluginInfo pluginInfo;
 	private ICommandResultFactory resultFactory;
@@ -26,7 +26,7 @@ public class LocalUserCommand implements ICommand {
 
 	@Override
 	public String getCommandId() {
-		return "GET_USERS";
+		return "EDIT_USER";
 	}
 
 	@Override

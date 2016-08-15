@@ -28,7 +28,7 @@
 		<lider.ahenk.version>1.0.0-SNAPSHOT</lider.ahenk.version>
 		<jackson.version>1.9.13</jackson.version>
 		<aries.blueprint.version>1.1.0</aries.blueprint.version>
-		<tycho.version>0.25.0</tycho.version>
+		<tycho.version>0.23.0</tycho.version>
 		<geronimo.jpa.version>1.1</geronimo.jpa.version>
 		<maven.resources.plugin.version>2.7</maven.resources.plugin.version>
 		<build.helper.maven.plugin.version>1.10</build.helper.maven.plugin.version>
