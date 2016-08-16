@@ -183,6 +183,9 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 						"ADD_USER", null, null, null, "false", null, "ADD_USER");
 				dialog.create();
 				dialog.open();
+				
+				viewer.getTable().clearAll();
+				viewer.getTable().setItemCount(0);
 				getData();
 			}
 			
@@ -218,7 +221,8 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 					logger.error(e1.getMessage(), e1);
 					Notifier.error(null, Messages.getString("ERROR_ON_EXECUTE"));
 				}
-				viewer.getTable().remove(viewer.getTable().getSelectionIndices());
+				viewer.getTable().clearAll();
+				viewer.getTable().setItemCount(0);
 				getData();
 			}
 			
@@ -254,6 +258,9 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 							tableItem.getText(1), "EDIT_USER");
 					dialog.create();
 					dialog.open();
+					
+					viewer.getTable().clearAll();
+					viewer.getTable().setItemCount(0);
 					getData();
 				}
 			}
@@ -302,7 +309,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 		 column.setMoveable(true);
 		 return viewerColumn;
 	}
-
+	
 	@Override
 	public void validateBeforeExecution() throws ValidationException {
 	}

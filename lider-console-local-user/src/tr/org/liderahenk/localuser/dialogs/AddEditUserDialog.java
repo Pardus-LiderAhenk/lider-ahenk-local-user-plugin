@@ -26,6 +26,11 @@ import tr.org.liderahenk.liderconsole.core.utils.SWTResourceManager;
 import tr.org.liderahenk.localuser.constants.LocalUserConstants;
 import tr.org.liderahenk.localuser.i18n.Messages;
 
+/**
+ * 
+ * @author <a href="mailto:mine.dogan@agem.com.tr">Mine Dogan</a>
+ *
+ */
 public class AddEditUserDialog extends DefaultTaskDialog {
 	
 	private String title;
