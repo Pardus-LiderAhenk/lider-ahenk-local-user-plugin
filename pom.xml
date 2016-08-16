@@ -79,7 +79,6 @@
 
 	<modules>
 		<module>lider-local-user</module>
-		<module>lider-local-user-db</module>
 		<module>lider-local-user-feature</module>
 		<module>lider-console-local-user</module>
 		<module>lider-console-local-user-feature</module>

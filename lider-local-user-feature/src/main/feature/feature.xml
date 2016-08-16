@@ -30,7 +30,6 @@
 
     <feature name="lider-local-user-bundles" version="${project.version}">
 		<bundle>mvn:tr.org.liderahenk/lider-local-user/${project.version}</bundle>
-		<bundle>mvn:tr.org.liderahenk/lider-local-user-db/${project.version}</bundle>
 		<configfile finalname="/etc/tr.org.liderahenk.localuser.cfg">mvn:tr.org.liderahenk/lider-local-user/${project.version}/cfg</configfile>
     </feature>
 
