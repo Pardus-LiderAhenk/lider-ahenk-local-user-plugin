@@ -18,7 +18,7 @@ class GetUsers(AbstractPlugin):
 
         self.command_users = 'awk -F: \'{print $1 ":" $6 ":" $7}\' /etc/passwd | grep /bin/bash'
         self.command_user_groups = 'groups {}'
-        self.command_is_active = 'grep -c -w \'^#{}\' /etc/shadow'
+        self.command_not_active = 'egrep \':\!\' /etc/shadow |awk -F: \'{print $1}\''
 
         self.logger.debug('[LOCAL-USER] Parameters were initialized.')
 
@@ -41,8 +41,10 @@ class GetUsers(AbstractPlugin):
 
                 is_active = 'true'
 
-                result_code, p_out, p_err = self.execute(self.command_is_active.format(str(detail[0]).strip()))
-                if int(p_out.strip()) == 1:
+                result_code, p_out, p_err = self.execute(self.command_not_active)
+                users = p_out.split('\n')
+
+                if str(detail[0]).strip() in users:
                     is_active = 'false'
 
                 user = {'user':str(detail[0]).strip(), 'groups':groups[1], 'home':detail[1], 'is_active':is_active}
