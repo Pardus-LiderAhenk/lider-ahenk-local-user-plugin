@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -33,13 +34,11 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tr.org.liderahenk.liderconsole.core.constants.LiderConstants;
 import tr.org.liderahenk.liderconsole.core.dialogs.DefaultTaskDialog;
 import tr.org.liderahenk.liderconsole.core.exceptions.ValidationException;
 import tr.org.liderahenk.liderconsole.core.ldap.enums.DNType;
 import tr.org.liderahenk.liderconsole.core.rest.requests.TaskRequest;
 import tr.org.liderahenk.liderconsole.core.rest.utils.TaskRestUtils;
-import tr.org.liderahenk.liderconsole.core.utils.SWTResourceManager;
 import tr.org.liderahenk.liderconsole.core.widgets.Notifier;
 import tr.org.liderahenk.liderconsole.core.xmpp.notifications.TaskStatusNotification;
 import tr.org.liderahenk.localuser.constants.LocalUserConstants;
@@ -118,11 +117,11 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 									    item.setText(2, home);
 									    
 									    if(isActive) {
-									    	item.setImage(3, SWTResourceManager.getImage(LiderConstants.PLUGIN_IDS.LIDER_CONSOLE_CORE, "icons/16/ok.png"));
+									    	item.setImage(3, new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/ok.png")));
 									    	item.setText(3, Messages.getString("TRUE"));
 									    }
 									    else {
-									    	item.setImage(3, SWTResourceManager.getImage(LiderConstants.PLUGIN_IDS.LIDER_CONSOLE_CORE, "icons/16/cancel.png"));
+									    	item.setImage(3, new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/cancel.png")));
 									    	item.setText(3, Messages.getString("FALSE"));
 									    }
 									}
@@ -174,13 +173,13 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 		
 		btnAdd = new Button(composite, SWT.PUSH);
 		btnAdd.setText(Messages.getString("ADD"));
-		btnAdd.setImage(SWTResourceManager.getImage(LiderConstants.PLUGIN_IDS.LIDER_CONSOLE_CORE, "icons/16/add.png"));
+		btnAdd.setImage(new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/add.png")));
 		btnAdd.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn, 
-						"ADD_USER", null, null, null, "false", null, "ADD_USER");
+						"ADD_USER", null, null, "false", null, "ADD_USER");
 				dialog.create();
 				dialog.open();
 				
@@ -196,27 +195,17 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 		
 		btnDelete = new Button(composite, SWT.PUSH);
 		btnDelete.setText(Messages.getString("DELETE"));
-		btnDelete.setImage(SWTResourceManager.getImage(LiderConstants.PLUGIN_IDS.LIDER_CONSOLE_CORE, "icons/16/delete.png"));
+		btnDelete.setImage(new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/delete.png")));
 		btnDelete.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				TableItem item = viewer.getTable().getItem(viewer.getTable().getSelectionIndex());
 				try {
-					Map<String, Object> parameterMap = new HashMap<String, Object>();
-					parameterMap.put(LocalUserConstants.PARAMETERS.USERNAME, item.getText(0));
-					parameterMap.put(LocalUserConstants.PARAMETERS.GROUPS, item.getText(1));
-					parameterMap.put(LocalUserConstants.PARAMETERS.HOME, item.getText(2));
-					if (item.getText(3).equals(Messages.getString("TRUE"))) {
-						parameterMap.put(LocalUserConstants.PARAMETERS.ACTIVE, "true");
-					}
-					else if (item.getText(3).equals(Messages.getString("FALSE"))) {
-						parameterMap.put(LocalUserConstants.PARAMETERS.ACTIVE, "false");
-					}
+					DeleteHomeQuestionDialog questionDialog = new DeleteHomeQuestionDialog(
+							Display.getDefault().getActiveShell(), item.getText(0), item.getText(2), getDnSet());
+					questionDialog.open();
 					
-					TaskRequest task = new TaskRequest(new ArrayList<String>(getDnSet()), DNType.AHENK, getPluginName(),
-							getPluginVersion(), "DELETE_USER", parameterMap, null, new Date());
-					TaskRestUtils.execute(task);
 				} catch (Exception e1) {
 					logger.error(e1.getMessage(), e1);
 					Notifier.error(null, Messages.getString("ERROR_ON_EXECUTE"));
@@ -233,7 +222,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 		
 		btnEdit = new Button(composite, SWT.PUSH);
 		btnEdit.setText(Messages.getString("EDIT"));
-		btnEdit.setImage(SWTResourceManager.getImage(LiderConstants.PLUGIN_IDS.LIDER_CONSOLE_CORE, "icons/16/edit.png"));
+		btnEdit.setImage(new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/edit.png")));
 		btnEdit.addSelectionListener(new SelectionListener() {
 			
 			@Override
@@ -253,7 +242,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 						isActive = "false";
 					}
 					AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn, 
-							"EDIT_USER", tableItem.getText(0), null, 
+							"EDIT_USER", tableItem.getText(0), 
 							tableItem.getText(2), isActive, 
 							tableItem.getText(1), "EDIT_USER");
 					dialog.create();
