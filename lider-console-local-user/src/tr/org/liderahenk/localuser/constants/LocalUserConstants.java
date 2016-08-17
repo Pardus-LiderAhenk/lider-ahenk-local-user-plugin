@@ -8,10 +8,12 @@ public class LocalUserConstants {
 	
 	public static final class PARAMETERS {
 		public static final String USERNAME = "username";
-		public static final String PASSWORD = "passsword";
+		public static final String NEW_USERNAME = "new_username";
+		public static final String PASSWORD = "password";
 		public static final String HOME = "home";
 		public static final String ACTIVE = "active";
 		public static final String GROUPS = "groups";
+		public static final String DELETE_HOME = "delete_home";
 	}
 	
 }

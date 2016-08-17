@@ -1,6 +1,7 @@
 package tr.org.liderahenk.localuser.dialogs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,6 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	
 	private String title;
 	private String username;
-	private String password;
 	private String home;
 	private String isActive;
 	private String groups;
@@ -45,17 +45,17 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	private Composite userGroupsComposite;
 	
 	private Text txtUsername;
+	private Text txtNewUsername;
 	private Text txtPassword;
 	private Text txtHome;
 	private Text txtGroup;
 	private Button[] btnActive;
 	
 	public AddEditUserDialog(Shell parentShell, String dn, String title, String username, 
-			String password, String home, String isActive, String groups, String commandId) {
+			String home, String isActive, String groups, String commandId) {
 		super(parentShell, dn);
 		this.title = title;
 		this.username = username;
-		this.password = password;
 		this.home = home;
 		this.isActive = isActive;
 		this.groups = groups;
@@ -97,14 +97,27 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 			txtUsername.setText(this.username);
 		}
 		
+		if (commandId.equals("EDIT_USER")) {
+			txtUsername.setEnabled(false);
+			Label newUsername = new Label(composite, SWT.NONE);
+			newUsername.setText(Messages.getString("NEW_USERNAME"));
+			
+			txtNewUsername = new Text(composite, SWT.BORDER);
+			txtNewUsername.setLayoutData(data);
+			
+			if (this.username != null) {
+				txtNewUsername.setText(this.username);
+			}
+		}
+		
 		Label password = new Label(composite, SWT.NONE);
 		password.setText(Messages.getString("PASSWORD"));
-
-		txtPassword = new Text(composite, SWT.BORDER);
+		
+		txtPassword = new Text(composite, SWT.BORDER | SWT.PASSWORD);
 		txtPassword.setLayoutData(data);
 		
-		if (this.password != null) {
-			txtPassword.setText(this.password);
+		if (commandId.equals("EDIT_USER")) {
+			txtPassword.setToolTipText(Messages.getString("FILL_TO_CHANGE"));
 		}
 
 		Label home = new Label(composite, SWT.NONE);
@@ -281,12 +294,22 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	public Map<String, Object> getParameterMap() {
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(LocalUserConstants.PARAMETERS.USERNAME, txtUsername.getText());
+		
+		if (txtNewUsername != null && txtNewUsername.getText() != null) {
+			parameterMap.put(LocalUserConstants.PARAMETERS.NEW_USERNAME, txtNewUsername.getText());
+		}
+		
 		if (txtPassword.getText() != null) {
 			parameterMap.put(LocalUserConstants.PARAMETERS.PASSWORD, txtPassword.getText());
 		}
 		parameterMap.put(LocalUserConstants.PARAMETERS.HOME, txtHome.getText());
-		parameterMap.put(LocalUserConstants.PARAMETERS.ACTIVE, btnActive[0].getSelection());
-		parameterMap.put(LocalUserConstants.PARAMETERS.GROUPS, list());
+		parameterMap.put(LocalUserConstants.PARAMETERS.ACTIVE, String.valueOf(btnActive[0].getSelection()));
+		
+		String strList = Arrays.toString(list());               
+		strList = strList.substring(1, strList.length()-1).replaceAll(" ", "");
+		
+		parameterMap.put(LocalUserConstants.PARAMETERS.GROUPS, strList);
+		
 		return parameterMap;
 	}
 
