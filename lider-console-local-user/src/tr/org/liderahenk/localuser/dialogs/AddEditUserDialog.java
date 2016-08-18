@@ -152,6 +152,9 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		if (this.home != null) {
 			txtHome.setText(this.home);
 		}
+		else {
+			txtHome.setToolTipText(Messages.getString("SAMPLE_HOME"));
+		}
 		
 		btnActive = new Button[2];
 		
@@ -311,8 +314,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	public void validateBeforeExecution() throws ValidationException {
 		
 		if(txtUsername.getText().isEmpty() || txtHome.getText().isEmpty()) {
-			
-			throw new ValidationException(Messages.getString("FILL_ALL_FIELDS"));
+			throw new ValidationException(Messages.getString("FILL_SOME_FIELDS"));
 		}
 	}
 
