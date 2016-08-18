@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -70,7 +71,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	@Override
 	public Control createTaskDialogArea(Composite parent) {
 		
-		sc = new ScrolledComposite(parent, SWT.NONE | SWT.V_SCROLL);
+		sc = new ScrolledComposite(parent, SWT.NONE | SWT.V_SCROLL | SWT.H_SCROLL);
 		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gridData.heightHint = 250;
 		sc.setLayoutData(gridData);
@@ -78,7 +79,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 		
 		Composite composite = new Composite(sc, SWT.NONE);
-		composite.setLayout(new GridLayout(2, false));
+		composite.setLayout(new GridLayout(3, false));
 		
 		sc.setContent(composite);
 		sc.setExpandHorizontal(true);
@@ -91,6 +92,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		GridData data =  new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		data.grabExcessHorizontalSpace = true;
+		data.horizontalSpan = 2;
 		txtUsername.setLayoutData(data);
 		
 		if (this.username != null) {
@@ -114,11 +116,32 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		password.setText(Messages.getString("PASSWORD"));
 		
 		txtPassword = new Text(composite, SWT.BORDER | SWT.PASSWORD);
-		txtPassword.setLayoutData(data);
+		GridData passwordGridData =  new GridData();
+		passwordGridData.horizontalAlignment = SWT.FILL;
+		passwordGridData.grabExcessHorizontalSpace = true;
+		txtPassword.setLayoutData(passwordGridData);
 		
 		if (commandId.equals("EDIT_USER")) {
 			txtPassword.setToolTipText(Messages.getString("FILL_TO_CHANGE"));
 		}
+		
+		Button btnShow = new Button(composite, SWT.CHECK);
+		btnShow.setText(Messages.getString("SHOW"));
+		btnShow.addSelectionListener(new SelectionAdapter() {
+			
+			@Override
+		    public void widgetSelected(SelectionEvent e)
+		    {
+		        Button button = (Button) e.widget;
+		        if (button.getSelection()) {
+		        	txtPassword.setEchoChar('\0');
+		        }
+		        else {
+		        	char ch = 0x25cf;
+		        	txtPassword.setEchoChar(ch);
+		        }
+		    }
+		});
 
 		Label home = new Label(composite, SWT.NONE);
 		home.setText(Messages.getString("USER_HOME"));
@@ -147,7 +170,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		
 		Composite compGroups = new Composite(composite, SWT.NONE);
 		compGroups.setLayout(new GridLayout(1, false));
-		compGroups.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
+		compGroups.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
 		
 		Label groups = new Label(compGroups, SWT.NONE);
 		groups.setText(Messages.getString("GROUP"));
@@ -176,7 +199,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		if (this.groups != null) {
 			String[] groupList = this.groups.split(",");
 			for (int i = 0; i < groupList.length; i++) {
-				if(i != 0) {
+				if(i > 1) {
 					createGroupEntry(userGroupsComposite);
 
 					Button btnRemoveGroup = new Button(userGroupsComposite, SWT.NONE);
@@ -195,7 +218,10 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 
 					redraw();
 				}
-				txtGroup.setText(groupList[i]);
+				
+				if(i > 0) {
+					txtGroup.setText(groupList[i]);
+				}
 			}
 		}
 
@@ -226,7 +252,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	}
 	
 	private void createGroupEntry(Composite parent) {
-
+		
 		Group grpGroupEntry = new Group(parent, SWT.NONE);
 		grpGroupEntry.setLayout(new GridLayout(1, false));
 		grpGroupEntry.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -257,7 +283,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	
 	private void redraw() {
 		sc.layout(true, true);
-		sc.setMinSize(sc.getContent().computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		sc.setMinSize(sc.getContent().computeSize(SWT.DEFAULT, SWT.DEFAULT, true));
 	}
 	
 	private String[] list() {
@@ -284,7 +310,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	@Override
 	public void validateBeforeExecution() throws ValidationException {
 		
-		if(list().length == 0 || txtUsername.getText().isEmpty() || txtHome.getText().isEmpty()) {
+		if(txtUsername.getText().isEmpty() || txtHome.getText().isEmpty()) {
 			
 			throw new ValidationException(Messages.getString("FILL_ALL_FIELDS"));
 		}
