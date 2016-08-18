@@ -54,8 +54,9 @@ class EditUser(AbstractPlugin):
                 self.execute(self.disable_user.format(self.username))
                 self.logger.debug('[LOCAL-USER - EDIT] The user has been disabled.')
 
-            self.execute(self.change_groups.format(self.groups, self.username))
-            self.logger.debug('[LOCAL-USER - EDIT] Added user to these groups: {}'.format(self.groups))
+            if self.groups != "":
+                self.execute(self.change_groups.format(self.groups, self.username))
+                self.logger.debug('[LOCAL-USER - EDIT] Added user to these groups: {}'.format(self.groups))
 
 
             self.logger.info('[LOCAL-USER - EDIT] User has been edited successfully.')

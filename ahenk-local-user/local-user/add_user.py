@@ -42,8 +42,9 @@ class AddUser(AbstractPlugin):
                 self.execute(self.disable_user.format(self.username))
                 self.logger.debug('[LOCAL-USER - ADD] The user has been disabled.')
 
-            self.execute(self.add_user_to_groups.format(self.groups, self.username))
-            self.logger.debug('[LOCAL-USER - ADD] Added user to these groups: {}'.format(self.groups))
+            if self.groups != "":
+                self.execute(self.add_user_to_groups.format(self.groups, self.username))
+                self.logger.debug('[LOCAL-USER - ADD] Added user to these groups: {}'.format(self.groups))
 
             result_code, p_out, p_err = self.execute(self.create_shadow_password.format(self.password))
             shadow_password = p_out.strip()
