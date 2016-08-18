@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+# Author:Mine DOGAN <mine.dogan@agem.com.tr>
+
+from base.plugin.abstract_plugin import AbstractPlugin
+
+
+class Init(AbstractPlugin):
+    def __init__(self, context):
+        super(Init, self).__init__()
+        self.context = context
+        self.logger = self.get_logger()
+
+        self.logger.debug('[LOCAL-USER - init] Parameters were initialized.')
+
+    def handle_mode(self):
+
+        if self.is_installed('mkpasswd') is False:
+            self.install_with_apt_get('mkpasswd')
+            self.logger.debug('[LOCAL-USER - init] mkpasswd has been installed with apt-get.')
+
+        if self.is_installed('whois') is False:
+            self.install_with_apt_get('whois')
+            self.logger.debug('[LOCAL-USER - init] whois has been installed with apt-get.')
+
+
+def handle_mode(context):
+    init = Init(context)
+    init.handle_mode()
