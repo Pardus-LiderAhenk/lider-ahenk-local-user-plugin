@@ -38,7 +38,7 @@ public class DeleteHomeQuestionDialog extends Dialog {
 	private Set<String> dnSet;
 	private String username;
 	private String home;
-	
+
 	private Label message;
 	private Button btnYes;
 	private Button btnNo;
@@ -74,18 +74,18 @@ public class DeleteHomeQuestionDialog extends Dialog {
 		message.setText(Messages.getString("DELETE_HOME"));
 		GridData gridData = new GridData(SWT.FILL, SWT.CENTER, false, false);
 		message.setLayoutData(gridData);
-		
+
 		delete = false;
-		
+
 		Composite cmpButtons = new Composite(composite, SWT.NONE);
 		cmpButtons.setLayout(new GridLayout(2, true));
 		cmpButtons.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true, 2, 1));
-		
+
 		btnYes = new Button(cmpButtons, SWT.PUSH);
 		btnYes.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
 		btnYes.setText(Messages.getString("TRUE"));
 		btnYes.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				delete = true;
@@ -96,17 +96,17 @@ public class DeleteHomeQuestionDialog extends Dialog {
 				}
 				Display.getDefault().getActiveShell().close();
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
+
 		btnNo = new Button(cmpButtons, SWT.PUSH);
 		btnNo.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
 		btnNo.setText(Messages.getString("FALSE"));
 		btnNo.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				delete = false;
@@ -117,7 +117,7 @@ public class DeleteHomeQuestionDialog extends Dialog {
 				}
 				Display.getDefault().getActiveShell().close();
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
@@ -125,7 +125,7 @@ public class DeleteHomeQuestionDialog extends Dialog {
 
 		return composite;
 	}
-	
+
 	public Map<String, Object> getParameterMap() {
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(LocalUserConstants.PARAMETERS.USERNAME, username);
@@ -133,11 +133,11 @@ public class DeleteHomeQuestionDialog extends Dialog {
 		parameterMap.put(LocalUserConstants.PARAMETERS.DELETE_HOME, delete);
 		return parameterMap;
 	}
-	
+
 	private void sendTask() throws Exception {
 		TaskRequest task = new TaskRequest(new ArrayList<String>(dnSet), DNType.AHENK, LocalUserConstants.PLUGIN_NAME,
-				LocalUserConstants.PLUGIN_VERSION, "DELETE_USER", getParameterMap(), null, new Date());
+				LocalUserConstants.PLUGIN_VERSION, "DELETE_USER", getParameterMap(), null, null, new Date());
 		TaskRestUtils.execute(task);
 	}
-	
+
 }
