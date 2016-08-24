@@ -9,5 +9,5 @@ Homepage: http://www.liderahenk.org.tr
 Package: ahenk-local-user
 Version: 1.0.0
 Architecture: any
-Depends: python3 (>= 3), mkpasswd, whois
+Depends: python3 (>= 3), whois
 Description: Lider Ahenk ahenk-local-user plugin

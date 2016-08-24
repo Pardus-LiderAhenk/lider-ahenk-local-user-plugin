@@ -15,10 +15,6 @@ class Init(AbstractPlugin):
 
     def handle_mode(self):
 
-        if self.is_installed('mkpasswd') is False:
-            self.install_with_apt_get('mkpasswd')
-            self.logger.debug('[LOCAL-USER - init] mkpasswd has been installed with apt-get.')
-
         if self.is_installed('whois') is False:
             self.install_with_apt_get('whois')
             self.logger.debug('[LOCAL-USER - init] whois has been installed with apt-get.')
