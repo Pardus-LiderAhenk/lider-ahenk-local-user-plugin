@@ -4,7 +4,6 @@
 
 import json
 
-from base.model.enum.ContentType import ContentType
 from base.plugin.abstract_plugin import AbstractPlugin
 
 
@@ -57,7 +56,7 @@ class GetUsers(AbstractPlugin):
             self.context.create_response(code=self.message_code.TASK_PROCESSED.value,
                                          message='Kullanıcı listesi başarıyla getirildi.',
                                          data=json.dumps({'users':user_list}),
-                                         content_type=ContentType.APPLICATION_JSON.value)
+                                         content_type=self.get_content_type().APPLICATION_JSON.value)
 
         except Exception as e:
             self.logger.error('[LOCAL-USER] A problem occured while handling Local-User task: {0}'.format(str(e)))
