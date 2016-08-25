@@ -18,11 +18,17 @@ class DeleteUser(AbstractPlugin):
 
         self.delete_user_home = 'rm -r {}'
         self.delete_user = 'userdel {}'
+        self.logout_user = 'pkill -u {}'
+        self.kill_all_process = 'killall -KILL -u {}'
 
         self.logger.debug('[LOCAL-USER - DELETE] Parameters were initialized.')
 
     def handle_task(self):
         try:
+            self.execute(self.logout_user.format(self.username))
+            self.execute(self.kill_all_process.format(self.username))
+            self.logger.debug('[LOCAL-USER - DELETE] Killed all processes for {}'.format(self.username))
+
             if self.delete_home == True:
                 self.execute(self.delete_user.format(self.username))
                 self.execute(self.delete_user_home.format(self.home))
