@@ -38,7 +38,7 @@ class EditUser(AbstractPlugin):
         try:
             self.execute(self.logout_user.format(self.username))
             self.execute(self.kill_all_process.format(self.username))
-            self.logger.debug('[LOCAL-USER - DELETE] Killed all processes for {}'.format(self.username))
+            self.logger.debug('[LOCAL-USER - EDIT] Killed all processes for {}'.format(self.username))
 
             if str(self.new_username).strip() != "":
                 self.execute(self.kill_processes.format(self.username))
@@ -60,7 +60,7 @@ class EditUser(AbstractPlugin):
 
             self.execute(self.change_owner.format(self.username, self.home))
             self.execute(self.change_permission.format(self.home))
-            self.logger.debug('[LOCAL-USER - ADD] Changed owner and permission for home directory.')
+            self.logger.debug('[LOCAL-USER - EDIT] Changed owner and permission for home directory.')
 
             if self.active == "true":
                 self.execute(self.enable_user.format(self.username))

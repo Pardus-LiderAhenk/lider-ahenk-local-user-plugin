@@ -43,7 +43,7 @@ class DeleteUser(AbstractPlugin):
 
         except Exception as e:
             self.logger.error(
-                '[LOCAL-USER - EDIT] A problem occured while handling Local-User task: {0}'.format(str(e)))
+                '[LOCAL-USER - DELETE] A problem occured while handling Local-User task: {0}'.format(str(e)))
             self.context.create_response(code=self.message_code.TASK_ERROR.value,
                                          message='Local-User görevi çalıştırılırken bir hata oluştu.')
 
