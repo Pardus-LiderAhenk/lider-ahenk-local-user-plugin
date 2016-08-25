@@ -25,6 +25,8 @@ class AddUser(AbstractPlugin):
         self.create_shadow_password = 'mkpasswd -m sha-512 {}'
         self.change_password = 'usermod -p {0} {1}'
         self.change_shell = 'usermod -s /bin/bash {}'
+        self.change_owner = 'chown {0}.{0} {1}'
+        self.change_permission = 'chmod 755 {}'
 
         self.logger.debug('[LOCAL-USER - ADD] Parameters were initialized.')
 
@@ -34,6 +36,10 @@ class AddUser(AbstractPlugin):
                 self.create_directory(self.home)
             self.execute(self.add_user.format(self.home, self.username))
             self.logger.debug('[LOCAL-USER - ADD] Added new user: {0}, home: {1}'.format(self.username, self.home))
+
+            self.execute(self.change_owner.format(self.username, self.home))
+            self.execute(self.change_permission.format(self.home))
+            self.logger.debug('[LOCAL-USER - ADD] Changed owner and permission for home directory.')
 
             if self.active == "true":
                 self.execute(self.enable_user.format(self.username))
