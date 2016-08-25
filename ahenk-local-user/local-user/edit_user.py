@@ -27,11 +27,19 @@ class EditUser(AbstractPlugin):
         self.enable_user = 'passwd -u {}'
         self.disable_user = 'passwd -l {}'
         self.change_groups = 'usermod -G {0} {1}'
+        self.change_owner = 'chown {0}.{0} {1}'
+        self.change_permission = 'chmod 755 {}'
+        self.logout_user = 'pkill -u {}'
+        self.kill_all_process = 'killall -KILL -u {}'
 
         self.logger.debug('[LOCAL-USER - EDIT] Parameters were initialized.')
 
     def handle_task(self):
         try:
+            self.execute(self.logout_user.format(self.username))
+            self.execute(self.kill_all_process.format(self.username))
+            self.logger.debug('[LOCAL-USER - DELETE] Killed all processes for {}'.format(self.username))
+
             if str(self.new_username).strip() != "":
                 self.execute(self.kill_processes.format(self.username))
                 self.execute(self.change_username.format(self.new_username, self.username))
@@ -44,8 +52,15 @@ class EditUser(AbstractPlugin):
                 self.execute(self.change_password.format('\'{}\''.format(shadow_password), self.username))
                 self.logger.debug('[LOCAL-USER - EDIT] Changed password.')
 
+            if not self.is_exist(self.home):
+                self.create_directory(self.home)
+
             self.execute(self.change_home.format(self.home, self.username))
             self.logger.debug('[LOCAL-USER - EDIT] Changed home directory to: {}'.format(self.home))
+
+            self.execute(self.change_owner.format(self.username, self.home))
+            self.execute(self.change_permission.format(self.home))
+            self.logger.debug('[LOCAL-USER - ADD] Changed owner and permission for home directory.')
 
             if self.active == "true":
                 self.execute(self.enable_user.format(self.username))
