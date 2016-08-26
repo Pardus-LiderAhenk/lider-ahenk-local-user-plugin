@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -43,6 +45,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	private String isActive;
 	private String groups;
 	private String commandId;
+	private Map<String, String> homeMap;
 	
 	private ScrolledComposite sc;
 	private Composite userGroupsComposite;
@@ -58,7 +61,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 			"([a-z_][a-z0-9_])");
 	
 	public AddEditUserDialog(Shell parentShell, String dn, String title, String username, 
-			String home, String isActive, String groups, String commandId) {
+			String home, String isActive, String groups, String commandId, Map<String, String> homeMap) {
 		super(parentShell, dn);
 		this.title = title;
 		this.username = username;
@@ -66,6 +69,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		this.isActive = isActive;
 		this.groups = groups;
 		this.commandId = commandId;
+		this.homeMap = homeMap;
 	}
 
 	@Override
@@ -93,12 +97,23 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		Label username = new Label(composite, SWT.NONE);
 		username.setText(Messages.getString("USERNAME"));
 		
+		ModifyListener listener = new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				Text text = (Text) e.widget;
+				txtHome.setText("/home/".concat(text.getText()));
+			}
+		};
+		
 		txtUsername = new Text(composite, SWT.BORDER);
 		GridData data =  new GridData();
 		data.horizontalAlignment = SWT.FILL;
 		data.grabExcessHorizontalSpace = true;
 		data.horizontalSpan = 2;
 		txtUsername.setLayoutData(data);
+		if (commandId.equals("ADD_USER")) {
+			txtUsername.addModifyListener(listener);
+		}
 		
 		if (this.username != null) {
 			txtUsername.setText(this.username);
@@ -318,7 +333,10 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	@Override
 	public void validateBeforeExecution() throws ValidationException {
 		
-		if(txtUsername.getText().replaceAll("\\s+","").isEmpty()) {
+		if(commandId == "ADD_USER" && txtUsername.getText().replaceAll("\\s+","").isEmpty()) {
+			throw new ValidationException(Messages.getString("FILL_USERNAME_FIELD"));
+		}
+		if(commandId == "EDIT_USER" && txtNewUsername.getText().replaceAll("\\s+","").isEmpty()) {
 			throw new ValidationException(Messages.getString("FILL_USERNAME_FIELD"));
 		}
 		if(commandId == "ADD_USER" && txtPassword.getText().replaceAll("\\s+","").isEmpty()) {
@@ -333,6 +351,20 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		if(!(matcher.find())) {
 			throw new ValidationException(Messages.getString("INVALID_USERNAME"));
 		}
+		
+		for ( Map.Entry<String, String> entry : homeMap.entrySet()) {
+		    String user = entry.getKey();
+		    String home = entry.getValue();
+		    
+		    if (home.equals(txtHome.getText()) && !user.equals(txtUsername.getText())) {
+		    	throw new ValidationException(Messages.getString("USER_CANNOT_GET_THIS_HOME"));
+			}
+		}
+		
+		if (!txtHome.getText().substring(0, 1).equals("/")) {
+			throw new ValidationException(Messages.getString("START_WITH_SLASH"));
+		}
+		
 	}
 
 	@Override

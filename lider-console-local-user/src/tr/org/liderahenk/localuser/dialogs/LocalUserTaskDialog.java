@@ -69,6 +69,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 	private String home;
 	private boolean isActive;
 	
+	private Map<String, String> homeMap = new HashMap<String, String>();
 	private final String[] columnTitles = new String[] { "USER", "GROUP", "HOME", "IS_ACTIVE" };
 
 	
@@ -117,6 +118,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 									    item.setText(0, user);
 									    item.setText(1, groups);
 									    item.setText(2, home);
+									    homeMap.put(user, home);
 									    
 									    if(isActive) {
 									    	item.setImage(3, new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/ok.png")));
@@ -181,7 +183,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn, 
-						"ADD_USER", null, null, "false", null, "ADD_USER");
+						"ADD_USER", null, null, "false", null, "ADD_USER", homeMap);
 				dialog.create();
 				dialog.open();
 				
@@ -246,7 +248,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 					AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn, 
 							"EDIT_USER", tableItem.getText(0), 
 							tableItem.getText(2), isActive, 
-							tableItem.getText(1), "EDIT_USER");
+							tableItem.getText(1), "EDIT_USER", homeMap);
 					dialog.create();
 					dialog.open();
 					
@@ -282,7 +284,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 	            AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn, 
 						"EDIT_USER", tableItem.getText(0), 
 						tableItem.getText(2), isActive, 
-						tableItem.getText(1), "EDIT_USER");
+						tableItem.getText(1), "EDIT_USER", homeMap);
 				dialog.create();
 				dialog.open();
 				
@@ -352,5 +354,13 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 	@Override
 	public String getPluginVersion() {
 		return LocalUserConstants.PLUGIN_VERSION;
+	}
+
+	public TableViewer getViewer() {
+		return viewer;
+	}
+
+	public void setViewer(TableViewer viewer) {
+		this.viewer = viewer;
 	}
 }
