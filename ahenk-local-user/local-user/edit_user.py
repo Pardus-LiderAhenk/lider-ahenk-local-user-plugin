@@ -27,6 +27,7 @@ class EditUser(AbstractPlugin):
         self.enable_user = 'passwd -u {}'
         self.disable_user = 'passwd -l {}'
         self.change_groups = 'usermod -G {0} {1}'
+        self.remove_all_groups = 'usermod -G "" {}'
         self.change_owner = 'chown {0}.{0} {1}'
         self.change_permission = 'chmod 755 {}'
         self.logout_user = 'pkill -u {}'
@@ -72,6 +73,9 @@ class EditUser(AbstractPlugin):
             if self.groups != "":
                 self.execute(self.change_groups.format(self.groups, self.username))
                 self.logger.debug('[LOCAL-USER - EDIT] Added user to these groups: {}'.format(self.groups))
+            else:
+                self.execute(self.remove_all_groups.format(self.username))
+                self.logger.debug('[LOCAL-USER - EDIT] Removed all groups for user: {}'.format(self.username))
 
 
             self.logger.info('[LOCAL-USER - EDIT] User has been edited successfully.')

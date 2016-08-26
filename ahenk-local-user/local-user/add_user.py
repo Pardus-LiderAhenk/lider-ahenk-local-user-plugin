@@ -19,6 +19,7 @@ class AddUser(AbstractPlugin):
         self.groups = self.task['groups']
 
         self.add_user = 'useradd -d {0} {1}'
+        self.check_home_owner = 'stat -c \'%U\' {}'
         self.enable_user = 'passwd -u {}'
         self.disable_user = 'passwd -l {}'
         self.add_user_to_groups = 'usermod -a -G {0} {1}'
@@ -52,11 +53,11 @@ class AddUser(AbstractPlugin):
                 self.execute(self.add_user_to_groups.format(self.groups, self.username))
                 self.logger.debug('[LOCAL-USER - ADD] Added user to these groups: {}'.format(self.groups))
 
-            result_code, p_out, p_err = self.execute(self.create_shadow_password.format(self.password))
-            shadow_password = p_out.strip()
-
-            self.execute(self.change_password.format('\'{}\''.format(shadow_password), self.username))
-            self.logger.debug('[LOCAL-USER - ADD] Changed password.')
+            if str(self.password).strip() != "":
+                result_code, p_out, p_err = self.execute(self.create_shadow_password.format(self.password))
+                shadow_password = p_out.strip()
+                self.execute(self.change_password.format('\'{}\''.format(shadow_password), self.username))
+                self.logger.debug('[LOCAL-USER - ADD] Changed password.')
 
             self.execute(self.change_shell.format(self.username))
             self.logger.debug('[LOCAL-USER - ADD] Changed user shell to /bin/bash')

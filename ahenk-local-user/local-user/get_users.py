@@ -49,7 +49,7 @@ class GetUsers(AbstractPlugin):
                 user = {'user':str(detail[0]).strip(), 'groups':groups[1], 'home':detail[1], 'is_active':is_active}
                 user_list.append(user)
 
-                self.logger.debug('user: {0}, groups: {1}, home: {2}, is_active: {3}'.format(str(detail[0]).strip(), groups[1], detail[1], is_active))
+                self.logger.debug('[LOCAL-USER] user: {0}, groups: {1}, home: {2}, is_active: {3}'.format(str(detail[0]).strip(), groups[1], detail[1], is_active))
 
 
             self.logger.info('[LOCAL-USER] Local-User task is handled successfully')
