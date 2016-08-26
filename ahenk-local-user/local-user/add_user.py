@@ -42,13 +42,6 @@ class AddUser(AbstractPlugin):
             self.execute(self.change_permission.format(self.home))
             self.logger.debug('[LOCAL-USER - ADD] Changed owner and permission for home directory.')
 
-            if self.active == "true":
-                self.execute(self.enable_user.format(self.username))
-                self.logger.debug('[LOCAL-USER - ADD] The user has been enabled.')
-            elif self.active == "false":
-                self.execute(self.disable_user.format(self.username))
-                self.logger.debug('[LOCAL-USER - ADD] The user has been disabled.')
-
             if self.groups != "":
                 self.execute(self.add_user_to_groups.format(self.groups, self.username))
                 self.logger.debug('[LOCAL-USER - ADD] Added user to these groups: {}'.format(self.groups))
@@ -61,6 +54,13 @@ class AddUser(AbstractPlugin):
 
             self.execute(self.change_shell.format(self.username))
             self.logger.debug('[LOCAL-USER - ADD] Changed user shell to /bin/bash')
+
+            if self.active == "true":
+                self.execute(self.enable_user.format(self.username))
+                self.logger.debug('[LOCAL-USER - ADD] The user has been enabled.')
+            elif self.active == "false":
+                self.execute(self.disable_user.format(self.username))
+                self.logger.debug('[LOCAL-USER - ADD] The user has been disabled.')
 
             self.logger.info('[LOCAL-USER - ADD] User has been added successfully.')
             self.context.create_response(code=self.message_code.TASK_PROCESSED.value,
