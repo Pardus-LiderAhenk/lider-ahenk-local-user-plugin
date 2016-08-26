@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -51,6 +53,9 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	private Text txtHome;
 	private Text txtGroup;
 	private Button[] btnActive;
+	
+	private static final Pattern USERNAME_REGEX = Pattern.compile(
+			"([a-z_][a-z0-9_])");
 	
 	public AddEditUserDialog(Shell parentShell, String dn, String title, String username, 
 			String home, String isActive, String groups, String commandId) {
@@ -313,8 +318,20 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	@Override
 	public void validateBeforeExecution() throws ValidationException {
 		
-		if(txtUsername.getText().isEmpty() || txtHome.getText().isEmpty()) {
-			throw new ValidationException(Messages.getString("FILL_SOME_FIELDS"));
+		if(txtUsername.getText().replaceAll("\\s+","").isEmpty()) {
+			throw new ValidationException(Messages.getString("FILL_USERNAME_FIELD"));
+		}
+		if(commandId == "ADD_USER" && txtPassword.getText().replaceAll("\\s+","").isEmpty()) {
+			throw new ValidationException(Messages.getString("FILL_PASSWORD_FIELD"));
+		}
+		if(txtHome.getText().replaceAll("\\s+","").isEmpty()) {
+			throw new ValidationException(Messages.getString("FILL_HOME_FIELD"));
+		}
+		
+		Matcher matcher = USERNAME_REGEX .matcher(txtUsername.getText());
+		
+		if(!(matcher.find())) {
+			throw new ValidationException(Messages.getString("INVALID_USERNAME"));
 		}
 	}
 
