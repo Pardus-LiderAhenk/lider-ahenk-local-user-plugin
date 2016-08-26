@@ -13,6 +13,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
@@ -261,6 +263,35 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 		
 		viewer = new TableViewer(composite, SWT.MULTI | SWT.H_SCROLL
 		        | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+		
+		viewer.addDoubleClickListener(new IDoubleClickListener(){
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				
+				int index = viewer.getTable().getSelectionIndex();
+				TableItem tableItem = viewer.getTable().getItem(index);
+				
+				String isActive = "false";
+				if (tableItem.getText(3).equals(Messages.getString("TRUE"))) {
+					isActive = "true";
+				}
+				else if (tableItem.getText(3).equals(Messages.getString("FALSE"))) {
+					isActive = "false";
+				}
+				
+	            AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn, 
+						"EDIT_USER", tableItem.getText(0), 
+						tableItem.getText(2), isActive, 
+						tableItem.getText(1), "EDIT_USER");
+				dialog.create();
+				dialog.open();
+				
+				viewer.getTable().clearAll();
+				viewer.getTable().setItemCount(0);
+				getData();
+			}
+		});
+		
 		createColumns(composite, viewer);
 		final Table table = viewer.getTable();
 	    table.setHeaderVisible(true);
