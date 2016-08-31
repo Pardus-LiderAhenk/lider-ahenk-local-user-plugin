@@ -60,32 +60,28 @@
            id="tr.org.liderahenk.liderconsole.commands.LocalUserTask"
            tooltip="%command.task">
                   <!-- TODO Uncomment this after updating/fixing LiderSourceProvider -->
-				  <!-- <visibleWhen>
+			 <visibleWhen>
 					   <and>
-			                <iterate operator="or">		
-			                	<or>
-							  	<with
-					                variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isSearchSelected">
-						             <equals
-						                   value="true">
-						             </equals>
-					          	</with>
-					          	<with
-					                variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isEntrySelected">
-						             <equals
-						                   value="true">
-						             </equals>
-					          	</with>
-					        	</or>
-					        </iterate>
-							<with
-				                variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isAhenkSelected">
-				             	<equals
-					                   value="true">
-					            </equals>
-				          	</with>
+       <with
+             variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isSingleEntrySelected">
+          <equals
+                value="true">
+          </equals>
+       </with>
+       <with
+             variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.available">
+          <equals
+                value="true">
+          </equals>
+       </with>
+       <with
+             variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isAhenkSelected">
+          <equals
+                value="true">
+          </equals>
+       </with>
 					    </and>
-					</visibleWhen> -->               
+					</visibleWhen>               
            		</command>
 		</menuContribution>
   </extension>
