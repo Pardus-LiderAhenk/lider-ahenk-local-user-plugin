@@ -17,39 +17,14 @@
    
    <extension
        point="org.eclipse.ui.handlers">
-
-		<!-- Profile handler -->
-      	
-      	<!-- Task handler -->
        <handler
             class="tr.org.liderahenk.localuser.handlers.LocalUserTaskHandler"
             commandId="tr.org.liderahenk.liderconsole.commands.LocalUserTask">
-           <!-- TODO Uncomment this after updating/fixing LiderSourceProvider -->
-		   <!-- <enabledWhen>
-				<and>
-		          <with
-		                variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.available">
-		             <equals
-		                   value="true">
-		             </equals>
-		          </with>
-				<with
-	                variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isAhenkSelected">
-	             	<equals
-		                   value="true">
-		            </equals>
-	          	</with>
-		       </and>
-		    </enabledWhen> -->        
       </handler>
-      
   </extension>
   
   <extension
          point="org.eclipse.ui.menus">
-
-		<!-- Add menu command for "profile definition" dialog -->
-      
       	<!-- Add extension point contribution for "task execution" dialogs -->
 		<menuContribution
       		allPopups="false"
@@ -59,33 +34,40 @@
            icon="icons/16/users.png"
            id="tr.org.liderahenk.liderconsole.commands.LocalUserTask"
            tooltip="%command.task">
-                  <!-- TODO Uncomment this after updating/fixing LiderSourceProvider -->
 			 <visibleWhen>
 					   <and>
-       <with
-             variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isSingleEntrySelected">
-          <equals
-                value="true">
-          </equals>
-       </with>
-       <with
-             variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.available">
-          <equals
-                value="true">
-          </equals>
-       </with>
-       <with
-             variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isAhenkSelected">
-          <equals
-                value="true">
-          </equals>
-       </with>
+					       <with
+					             variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isSingleEntrySelected">
+					          <equals
+					                value="true">
+					          </equals>
+					       </with>
+					       <with
+					             variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.available">
+					          <equals
+					                value="true">
+					          </equals>
+					       </with>
+					       <with
+					             variable="tr.org.liderahenk.liderconsole.core.sourceproviders.main.isAhenkSelected">
+					          <equals
+					                value="true">
+					          </equals>
+					       </with>
 					    </and>
 					</visibleWhen>               
            		</command>
 		</menuContribution>
   </extension>
   
-	<!-- Add extension point contribution for "policy execution" dialogs -->
-  	
+	<!-- Add extension point contribution for i18n messages -->
+	<extension
+  		point="tr.org.liderahenk.liderconsole.core.i18n">
+  		<task code="ADD_USER" label="%command.add.user.task" />
+  		<task code="DELETE_USER" label="%command.delete.user.task" />
+  		<task code="EDIT_USER" label="%command.edit.user.task" />
+  		<task code="GET_USERS" label="%command.get.users.task" />
+		<plugin name="local-user" label="%plugin.label" />
+  	</extension>
+  
 </plugin>
