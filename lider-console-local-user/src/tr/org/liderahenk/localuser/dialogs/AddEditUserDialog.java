@@ -58,7 +58,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	private Button[] btnActive;
 	
 	private static final Pattern USERNAME_REGEX = Pattern.compile(
-			"([a-z_][a-z0-9_])");
+			"^[a-z0-9_-]{1,32}$");
 	
 	public AddEditUserDialog(Shell parentShell, String dn, String title, String username, 
 			String home, String isActive, String groups, String commandId, Map<String, String> homeMap) {
