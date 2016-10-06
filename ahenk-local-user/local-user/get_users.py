@@ -46,20 +46,21 @@ class GetUsers(AbstractPlugin):
                 if str(detail[0]).strip() in users:
                     is_active = 'false'
 
-                user = {'user':str(detail[0]).strip(), 'groups':groups[1], 'home':detail[1], 'is_active':is_active}
+                user = {'user': str(detail[0]).strip(), 'groups': groups[1], 'home': detail[1], 'is_active': is_active}
                 user_list.append(user)
 
-                self.logger.debug('[LOCAL-USER] user: {0}, groups: {1}, home: {2}, is_active: {3}'.format(str(detail[0]).strip(), groups[1], detail[1], is_active))
+                self.logger.debug(
+                    'user: {0}, groups: {1}, home: {2}, is_active: {3}'.format(str(detail[0]).strip(), groups[1],
+                                                                               detail[1], is_active))
 
-
-            self.logger.info('[LOCAL-USER] Local-User task is handled successfully')
+            self.logger.info('Local User task is handled successfully')
             self.context.create_response(code=self.message_code.TASK_PROCESSED.value,
                                          message='Kullanıcı listesi başarıyla getirildi.',
-                                         data=json.dumps({'users':user_list}),
+                                         data=json.dumps({'users': user_list}),
                                          content_type=self.get_content_type().APPLICATION_JSON.value)
 
         except Exception as e:
-            self.logger.error('[LOCAL-USER] A problem occured while handling Local-User task: {0}'.format(str(e)))
+            self.logger.error('A problem occurred while handling Local-User task: {0}'.format(str(e)))
             self.context.create_response(code=self.message_code.TASK_ERROR.value,
                                          message='Local-User görevi çalıştırılırken bir hata oluştu.')
 

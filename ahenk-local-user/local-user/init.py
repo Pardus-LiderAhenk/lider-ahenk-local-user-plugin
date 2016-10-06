@@ -11,13 +11,12 @@ class Init(AbstractPlugin):
         self.context = context
         self.logger = self.get_logger()
 
-        self.logger.debug('[LOCAL-USER - init] Parameters were initialized.')
+        self.logger.debug('Parameters were initialized.')
 
     def handle_mode(self):
-
         if self.is_installed('whois') is False:
             self.install_with_apt_get('whois')
-            self.logger.debug('[LOCAL-USER - init] whois has been installed with apt-get.')
+            self.logger.debug('whois has been installed with apt-get.')
 
 
 def handle_mode(context):

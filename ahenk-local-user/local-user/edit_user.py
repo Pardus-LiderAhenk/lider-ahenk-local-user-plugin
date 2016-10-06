@@ -4,6 +4,7 @@
 
 from base.plugin.abstract_plugin import AbstractPlugin
 
+
 class EditUser(AbstractPlugin):
     def __init__(self, task, context):
         super(EditUser, self).__init__()
@@ -33,59 +34,59 @@ class EditUser(AbstractPlugin):
         self.logout_user = 'pkill -u {}'
         self.kill_all_process = 'killall -KILL -u {}'
 
-        self.logger.debug('[LOCAL-USER - EDIT] Parameters were initialized.')
+        self.logger.debug('Parameters were initialized.')
 
     def handle_task(self):
         try:
             self.execute(self.logout_user.format(self.username))
             self.execute(self.kill_all_process.format(self.username))
-            self.logger.debug('[LOCAL-USER - EDIT] Killed all processes for {}'.format(self.username))
+            self.logger.debug('Killed all processes for {}'.format(self.username))
 
             if str(self.new_username).strip() != "":
                 self.execute(self.kill_processes.format(self.username))
                 self.execute(self.change_username.format(self.new_username, self.username))
-                self.logger.debug('[LOCAL-USER - EDIT] Changed username {0} to {1}'.format(self.username, self.new_username))
+                self.logger.debug('Changed username {0} to {1}'.format(self.username, self.new_username))
                 self.username = self.new_username
 
             if str(self.password).strip() != "":
                 result_code, p_out, p_err = self.execute(self.create_shadow_password.format(self.password))
                 shadow_password = p_out.strip()
                 self.execute(self.change_password.format('\'{}\''.format(shadow_password), self.username))
-                self.logger.debug('[LOCAL-USER - EDIT] Changed password.')
+                self.logger.debug('Changed password.')
 
             if not self.is_exist(self.home):
                 self.create_directory(self.home)
 
             self.execute(self.change_home.format(self.home, self.username))
-            self.logger.debug('[LOCAL-USER - EDIT] Changed home directory to: {}'.format(self.home))
+            self.logger.debug('Changed home directory to: {}'.format(self.home))
 
             self.execute(self.change_owner.format(self.username, self.home))
             self.execute(self.change_permission.format(self.home))
-            self.logger.debug('[LOCAL-USER - EDIT] Changed owner and permission for home directory.')
+            self.logger.debug('Changed owner and permission for home directory.')
 
             if self.active == "true":
                 self.execute(self.enable_user.format(self.username))
-                self.logger.debug('[LOCAL-USER - EDIT] The user has been enabled.')
+                self.logger.debug('The user has been enabled.')
             elif self.active == "false":
                 self.execute(self.disable_user.format(self.username))
-                self.logger.debug('[LOCAL-USER - EDIT] The user has been disabled.')
+                self.logger.debug('The user has been disabled.')
 
             if self.groups != "":
                 self.execute(self.change_groups.format(self.groups, self.username))
-                self.logger.debug('[LOCAL-USER - EDIT] Added user to these groups: {}'.format(self.groups))
+                self.logger.debug('Added user to these groups: {}'.format(self.groups))
             else:
                 self.execute(self.remove_all_groups.format(self.username))
-                self.logger.debug('[LOCAL-USER - EDIT] Removed all groups for user: {}'.format(self.username))
+                self.logger.debug('Removed all groups for user: {}'.format(self.username))
 
-
-            self.logger.info('[LOCAL-USER - EDIT] User has been edited successfully.')
+            self.logger.info('User has been edited successfully.')
             self.context.create_response(code=self.message_code.TASK_PROCESSED.value,
                                          message='Kullanıcı başarıyla düzenlendi.')
 
         except Exception as e:
-            self.logger.error('[LOCAL-USER - EDIT] A problem occured while handling Local-User task: {0}'.format(str(e)))
+            self.logger.error('A problem occurred while handling Local-User task: {0}'.format(str(e)))
             self.context.create_response(code=self.message_code.TASK_ERROR.value,
                                          message='Local-User görevi çalıştırılırken bir hata oluştu.')
+
 
 def handle_task(task, context):
     edit_user = EditUser(task, context)
