@@ -111,6 +111,8 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		data.grabExcessHorizontalSpace = true;
 		data.horizontalSpan = 2;
 		txtUsername.setLayoutData(data);
+		txtUsername.setTextLimit(32);
+		
 		if (commandId.equals("ADD_USER")) {
 			txtUsername.addModifyListener(listener);
 		}
