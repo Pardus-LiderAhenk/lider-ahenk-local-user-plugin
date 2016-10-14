@@ -19,7 +19,7 @@ class GetUsers(AbstractPlugin):
         self.command_user_groups = 'groups {}'
         self.command_not_active = 'egrep \':\!\' /etc/shadow |awk -F: \'{print $1}\''
 
-        self.logger.debug('[LOCAL-USER] Parameters were initialized.')
+        self.logger.debug('Parameters were initialized.')
 
     def handle_task(self):
 
