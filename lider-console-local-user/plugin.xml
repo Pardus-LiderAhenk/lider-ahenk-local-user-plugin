@@ -68,6 +68,10 @@
   		<task code="EDIT_USER" label="%command.edit.user.task" />
   		<task code="GET_USERS" label="%command.get.users.task" />
 		<plugin name="local-user" label="%plugin.label" />
+  <task
+        code="GET_GROUPS"
+        label="%command.get.groups.task">
+  </task>
   	</extension>
   
 </plugin>
