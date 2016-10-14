@@ -52,6 +52,12 @@
 		<property name="resultFactory" ref="resultFactory" />
 		<property name="pluginInfo" ref="pluginInfoImpl" />
 	</bean>
+	
+	<service ref="GetGroupsCommand" interface="tr.org.liderahenk.lider.core.api.plugin.ICommand" />
+	<bean id="GetGroupsCommand" class="tr.org.liderahenk.localuser.commands.GetGroupsCommand">
+		<property name="resultFactory" ref="resultFactory" />
+		<property name="pluginInfo" ref="pluginInfoImpl" />
+	</bean>
 
 	<reference id="resultFactory" interface="tr.org.liderahenk.lider.core.api.service.ICommandResultFactory" />
 </blueprint>

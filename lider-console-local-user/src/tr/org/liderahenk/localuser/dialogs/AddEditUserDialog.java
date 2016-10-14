@@ -2,12 +2,19 @@ package tr.org.liderahenk.localuser.dialogs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
@@ -18,17 +25,28 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import tr.org.liderahenk.liderconsole.core.constants.LiderConstants;
 import tr.org.liderahenk.liderconsole.core.dialogs.DefaultTaskDialog;
 import tr.org.liderahenk.liderconsole.core.exceptions.ValidationException;
+import tr.org.liderahenk.liderconsole.core.ldap.enums.DNType;
+import tr.org.liderahenk.liderconsole.core.rest.requests.TaskRequest;
+import tr.org.liderahenk.liderconsole.core.rest.utils.TaskRestUtils;
 import tr.org.liderahenk.liderconsole.core.utils.SWTResourceManager;
+import tr.org.liderahenk.liderconsole.core.widgets.Notifier;
+import tr.org.liderahenk.liderconsole.core.xmpp.notifications.TaskStatusNotification;
 import tr.org.liderahenk.localuser.constants.LocalUserConstants;
 import tr.org.liderahenk.localuser.i18n.Messages;
 
@@ -38,6 +56,8 @@ import tr.org.liderahenk.localuser.i18n.Messages;
  *
  */
 public class AddEditUserDialog extends DefaultTaskDialog {
+	
+	private static final Logger logger = LoggerFactory.getLogger(AddEditUserDialog.class);
 	
 	private String title;
 	private String username;
@@ -54,8 +74,12 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	private Text txtNewUsername;
 	private Text txtPassword;
 	private Text txtHome;
-	private Text txtGroup;
+	
+	private Combo cmbGroup;
+	
 	private Button[] btnActive;
+	
+	private List<String> listGroups;
 	
 	private static final Pattern USERNAME_REGEX = Pattern.compile(
 			"^[a-z0-9_-]{1,32}$");
@@ -70,11 +94,82 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		this.groups = groups;
 		this.commandId = commandId;
 		this.homeMap = homeMap;
+		subscribeEventHandler(eventHandler);
+		getGroups();
 	}
 
 	@Override
 	public String createTitle() {
 		return Messages.getString(title);
+	}
+	
+	private EventHandler eventHandler = new EventHandler() {
+		@Override
+		public void handleEvent(final Event event) {
+			Job job = new Job("TASK") {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					monitor.beginTask("LOCAL_USER_GROUPS", 100);
+					try {
+						TaskStatusNotification taskStatus = (TaskStatusNotification) event
+								.getProperty("org.eclipse.e4.data");
+						byte[] data = taskStatus.getResult().getResponseData();
+						final Map<String, Object> responseData = new ObjectMapper().readValue(data, 0, data.length,
+								new TypeReference<HashMap<String, Object>>() {
+						});
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								if (responseData != null && !responseData.isEmpty() && responseData.containsKey("groups")) {
+									
+									@SuppressWarnings({ "unchecked" })
+									List<String> groupList = (List<String>) responseData.get("groups");
+									listGroups = groupList;
+									
+									if (userGroupsComposite != null && !userGroupsComposite.isDisposed()) {
+										Control[] children = userGroupsComposite.getChildren();
+										if (children != null) {
+											for (Control child : children) {
+												if (child instanceof Group) {
+													Control[] gChildren = ((Group) child).getChildren();
+													if (gChildren != null && gChildren.length == 1) {
+														for (String group : groupList) {
+															((Combo) gChildren[0]).add(group);
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						});
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+						Notifier.error("", Messages.getString("UNEXPECTED_ERROR_WHEN_GET_USERS"));
+					}
+					monitor.worked(100);
+					monitor.done();
+
+					return Status.OK_STATUS;
+				}
+			};
+
+			job.setUser(true);
+			job.schedule();
+		}
+	};
+	
+	private void getGroups() {
+		try {
+			TaskRequest task = new TaskRequest(new ArrayList<String>(getDnSet()), DNType.AHENK, getPluginName(),
+					getPluginVersion(), "GET_GROUPS", null, null, null, new Date());
+			TaskRestUtils.execute(task);
+		} catch (Exception e1) {
+			logger.error(e1.getMessage(), e1);
+			Notifier.error(null, Messages.getString("ERROR_ON_EXECUTE"));
+		}
 	}
 
 	@Override
@@ -245,7 +340,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 				}
 				
 				if(i > 0) {
-					txtGroup.setText(groupList[i]);
+					cmbGroup.setText(groupList[i]);
 				}
 			}
 		}
@@ -282,11 +377,17 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		grpGroupEntry.setLayout(new GridLayout(1, false));
 		grpGroupEntry.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		txtGroup = new Text(grpGroupEntry, SWT.BORDER);
+		cmbGroup = new Combo(grpGroupEntry, SWT.BORDER);
 		GridData groupsData =  new GridData();
 		groupsData.horizontalAlignment = SWT.FILL;
 		groupsData.grabExcessHorizontalSpace = true;
-		txtGroup.setLayoutData(groupsData);
+		cmbGroup.setLayoutData(groupsData);
+		
+		if (parent.getChildren().length > 1 && listGroups != null && !listGroups.isEmpty()) {
+			for (String group : listGroups) {
+				cmbGroup.add(group);
+			}
+		}
 	}
 
 	
@@ -321,8 +422,8 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 				if (child instanceof Group) {
 					Control[] gChildren = ((Group) child).getChildren();
 					if (gChildren != null && gChildren.length == 1) {
-						if (((Text) gChildren[0]).getText() != null && !((Text) gChildren[0]).getText().isEmpty()) {
-							groups.add(((Text) gChildren[0]).getText());
+						if (((Combo) gChildren[0]).getText() != null && !((Combo) gChildren[0]).getText().isEmpty()) {
+							groups.add(((Combo) gChildren[0]).getText());
 						}
 					}
 				}
