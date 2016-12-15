@@ -74,11 +74,13 @@ class AddUser(AbstractPlugin):
                 self.logger.debug('chown -R root:root /home/{0}/Masaüstü'.format(self.username))
 
             if self.kiosk_mode == "true":
-                comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"'+ ".*$/" + '<channel name="xfce4-panel" version="1.0" locked="*" unlocked="root">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+                comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"'+ ".*$/" + '<channel name="xfce4-panel" version="1.0" locked="' + self.username + '">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+                self.logger.debug(comm)
                 self.execute(comm)
 
             elif self.kiosk_mode == "false":
-                comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"' + ".*$/" + '<channel name="xfce4-panel" version="1.0">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+                comm = "sed -i -e 's/"+ self.username + "//g' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+                self.logger.debug(comm)
                 self.execute(comm)
 
             self.logger.info('User has been added successfully.')
