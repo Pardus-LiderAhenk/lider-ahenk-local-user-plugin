@@ -18,6 +18,8 @@ class AddUser(AbstractPlugin):
         self.home = self.task['home']
         self.active = self.task['active']
         self.groups = self.task['groups']
+        self.desktop_write_permission = self.task['desktop_write_permission']
+        self.kiosk_mode = self.task['kiosk_mode']
 
         self.add_user = 'useradd -d {0} {1}'
         self.check_home_owner = 'stat -c \'%U\' {}'
@@ -63,9 +65,28 @@ class AddUser(AbstractPlugin):
                 self.execute(self.disable_user.format(self.username))
                 self.logger.debug('The user has been disabled.')
 
+            if self.desktop_write_permission == "true":
+                self.execute('chown -R {0}:{1} /home/{2}/Masaüstü'.format(self.username, self.username, self.username))
+                self.logger.debug('chown -R {0}:{1} /home/{2}/Masaüstü'.format(self.username, self.username, self.username));
+
+            elif self.desktop_write_permission == "false":
+                self.execute('chown -R root:root /home/{0}/Masaüstü'.format(self.username))
+                self.logger.debug('chown -R root:root /home/{0}/Masaüstü'.format(self.username))
+
+            if self.kiosk_mode == "true":
+                comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"'+ ".*$/" + '<channel name="xfce4-panel" version="1.0" locked="*" unlocked="root">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+                self.execute(comm)
+
+            elif self.kiosk_mode == "false":
+                comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"' + ".*$/" + '<channel name="xfce4-panel" version="1.0">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+                self.execute(comm)
+
             self.logger.info('User has been added successfully.')
+
             self.context.create_response(code=self.message_code.TASK_PROCESSED.value,
                                          message='Kullanıcı başarıyla eklendi.')
+
+
 
         except Exception as e:
             self.logger.error('A problem occurred while handling Local-User task: {0}'.format(str(e)))

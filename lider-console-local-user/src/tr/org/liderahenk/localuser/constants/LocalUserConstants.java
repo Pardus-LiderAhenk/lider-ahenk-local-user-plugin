@@ -14,6 +14,8 @@ public class LocalUserConstants {
 		public static final String ACTIVE = "active";
 		public static final String GROUPS = "groups";
 		public static final String DELETE_HOME = "delete_home";
+		public static final String DESKTOP_WRITE_PERMISSION = "desktop_write_permission";
+		public static final String KIOSK_MODE = "kiosk_mode";
 	}
 	
 }

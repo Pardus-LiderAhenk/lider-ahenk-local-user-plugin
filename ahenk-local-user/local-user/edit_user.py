@@ -19,6 +19,8 @@ class EditUser(AbstractPlugin):
         self.home = self.task['home']
         self.active = self.task['active']
         self.groups = self.task['groups']
+        self.desktop_write_permission = self.task['desktop_write_permission']
+        self.kiosk_mode = self.task['kiosk_mode']
 
         self.kill_processes = 'pkill -u {}'
         self.change_username = 'usermod -l {0} {1}'
@@ -77,6 +79,24 @@ class EditUser(AbstractPlugin):
             else:
                 self.execute(self.remove_all_groups.format(self.username))
                 self.logger.debug('Removed all groups for user: {}'.format(self.username))
+
+            if self.desktop_write_permission == "true":
+                self.execute('chown -R {0}:{1} /home/{2}/Masaüstü'.format(self.username, self.username, self.username))
+                self.logger.debug('chown -R {0}:{1} /home/{2}/Masaüstü'.format(self.username, self.username, self.username));
+
+            elif self.desktop_write_permission == "false":
+                self.execute('chown -R root:root /home/{0}/Masaüstü'.format(self.username))
+                self.logger.debug('chown -R root:root /home/{0}/Masaüstü'.format(self.username))
+
+            if self.kiosk_mode == "true":
+                comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"'+ ".*$/" + '<channel name="xfce4-panel" version="1.0" locked="*" unlocked="root">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+                self.execute(comm)
+
+            elif self.kiosk_mode == "false":
+                comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"' + ".*$/" + '<channel name="xfce4-panel" version="1.0">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+                self.execute(comm)
+
+
 
             self.logger.info('User has been edited successfully.')
             self.context.create_response(code=self.message_code.TASK_PROCESSED.value,
