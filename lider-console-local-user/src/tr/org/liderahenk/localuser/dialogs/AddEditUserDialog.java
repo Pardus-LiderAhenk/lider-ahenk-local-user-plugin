@@ -78,6 +78,8 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	private Combo cmbGroup;
 	
 	private Button[] btnActive;
+	private Button btnDesktopWritePermission;
+	private Button btnKioskMode;
 	
 	private List<String> listGroups;
 	
@@ -288,6 +290,18 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 			btnActive[1].setSelection(true);
 		}
 		
+
+		new Label(composite, SWT.NONE);
+
+		btnDesktopWritePermission = new Button(composite, SWT.CHECK);
+		btnDesktopWritePermission.setText(Messages.getString("DESKTOP_WRITE_PERMISSION"));
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+
+		btnKioskMode = new Button(composite, SWT.CHECK);
+		btnKioskMode.setText(Messages.getString("KIOSK_MODE"));
+		new Label(composite, SWT.NONE);
+		
 		Composite compGroups = new Composite(composite, SWT.NONE);
 		compGroups.setLayout(new GridLayout(1, false));
 		compGroups.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
@@ -484,7 +498,8 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		}
 		parameterMap.put(LocalUserConstants.PARAMETERS.HOME, txtHome.getText());
 		parameterMap.put(LocalUserConstants.PARAMETERS.ACTIVE, String.valueOf(btnActive[0].getSelection()));
-		
+		parameterMap.put(LocalUserConstants.PARAMETERS.DESKTOP_WRITE_PERMISSION, String.valueOf(btnDesktopWritePermission.getSelection()));
+		parameterMap.put(LocalUserConstants.PARAMETERS.KIOSK_MODE, String.valueOf(btnKioskMode.getSelection()));
 		String strList = Arrays.toString(list());               
 		strList = strList.substring(1, strList.length()-1).replaceAll(" ", "");
 		
