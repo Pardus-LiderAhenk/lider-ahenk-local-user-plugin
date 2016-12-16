@@ -21,6 +21,8 @@ class AddUser(AbstractPlugin):
         self.desktop_write_permission = self.task['desktop_write_permission']
         self.kiosk_mode = self.task['kiosk_mode']
 
+        self.script = '/bin/bash ' + self.Ahenk.plugins_path() + 'local-user/scripts/{0}'
+
         self.add_user = 'useradd -d {0} {1}'
         self.check_home_owner = 'stat -c \'%U\' {}'
         self.enable_user = 'passwd -u {}'
@@ -31,6 +33,12 @@ class AddUser(AbstractPlugin):
         self.change_shell = 'usermod -s /bin/bash {}'
         self.change_owner = 'chown {0}.{0} {1}'
         self.change_permission = 'chmod 755 {}'
+        # Return value of 'locked' attribute
+        self.find_locked_users = 'cat /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml | sed -n \'s/^.*locked="\([A-Za-z; ]*\)".*$/\1/p\''
+        # Update values of 'locked' attribute
+        self.update_locked_users = 'sed -i \'s/\(^.*\)\(locked="[A-Za-z; ]*"\)\(.*$\)/\1 locked="{}" \3/\' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml'
+        # Remove 'locked' attribute
+        self.remove_locked_users = 'sed -i \'s/\(^.*\)\(locked="[A-Za-z; ]*"\)\(.*$\)/\1\3/\' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml'
 
         self.logger.debug('Parameters were initialized.')
 
@@ -73,15 +81,41 @@ class AddUser(AbstractPlugin):
                 self.execute('chown -R root:root /home/{0}/Masaüstü'.format(self.username))
                 self.logger.debug('chown -R root:root /home/{0}/Masaüstü'.format(self.username))
 
-            if self.kiosk_mode == "true":
-                comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"'+ ".*$/" + '<channel name="xfce4-panel" version="1.0" locked="' + self.username + '">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
-                self.logger.debug(comm)
-                self.execute(comm)
 
+            #
+            # Handle kiosk mode
+            #
+            result_code, p_out, p_err = self.execute(self.script.format('find_locked_users.sh'), result=True)
+            if result_code != 0:
+                self.logger.error(
+                    'Error occurred while managing kiosk mode.')
+                self.context.create_response(code=self.message_code.TASK_ERROR.value,
+                     message='Masaüstü kilidi ayarlanırken hata oluştu.')
+                return
+            locked_users = []
+            if p_out:
+                self.logger.debug('pout {0}'.format(str(p_out)))
+                locked_users = p_out.strip().split(';')
+            if self.kiosk_mode == "true":
+                self.logger.debug('Kiosk mode is active {0}'.format(str(locked_users)))
+                if self.username not in locked_users:
+                    self.logger.debug('Adding user {0} to locked users'.format(self.username))
+                    locked_users.append(self.username)
+                locked_users_str = ";".join(locked_users)
+                self.logger.debug('Users: {0}'.format(locked_users_str))
+                comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"' + ".*$/" + '<channel name="xfce4-panel" version="1.0" locked="' + locked_users_str + '">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+                result_code1, p_out1, p_err1 = self.execute(comm)
             elif self.kiosk_mode == "false":
-                comm = "sed -i -e 's/"+ self.username + "//g' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
-                self.logger.debug(comm)
-                self.execute(comm)
+                self.logger.debug('Kiok mode is NOT active')
+                if self.username in locked_users:
+                    self.logger.debug('Removing user {0} from locked users'.format(self.username))
+                    locked_users.remove(self.username)
+                if locked_users:
+                    locked_users_str = ";".join(locked_users)
+                    comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"' + ".*$/" + '<channel name="xfce4-panel" version="1.0" locked="' + locked_users_str + '">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+                    result_code1, p_out1, p_err1 = self.execute(comm)
+                else:
+                    self.execute(self.script.format('remove_locked_users.sh '))
 
             self.logger.info('User has been added successfully.')
 
