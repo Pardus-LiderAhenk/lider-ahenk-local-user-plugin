@@ -33,12 +33,6 @@ class AddUser(AbstractPlugin):
         self.change_shell = 'usermod -s /bin/bash {}'
         self.change_owner = 'chown {0}.{0} {1}'
         self.change_permission = 'chmod 755 {}'
-        # Return value of 'locked' attribute
-        self.find_locked_users = 'cat /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml | sed -n \'s/^.*locked="\([A-Za-z; ]*\)".*$/\1/p\''
-        # Update values of 'locked' attribute
-        self.update_locked_users = 'sed -i \'s/\(^.*\)\(locked="[A-Za-z; ]*"\)\(.*$\)/\1 locked="{}" \3/\' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml'
-        # Remove 'locked' attribute
-        self.remove_locked_users = 'sed -i \'s/\(^.*\)\(locked="[A-Za-z; ]*"\)\(.*$\)/\1\3/\' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml'
 
         self.logger.debug('Parameters were initialized.')
 
