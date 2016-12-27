@@ -210,7 +210,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		txtUsername.setLayoutData(data);
 		txtUsername.setTextLimit(32);
 		
-		if (commandId.equals("ADD_USER")) {
+		if ("ADD_USER".equals(commandId)) {
 			txtUsername.addModifyListener(listener);
 		}
 		
@@ -218,7 +218,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 			txtUsername.setText(this.username);
 		}
 		
-		if (commandId.equals("EDIT_USER")) {
+		if ("EDIT_USER".equals(commandId)) {
 			txtUsername.setEnabled(false);
 			Label newUsername = new Label(composite, SWT.NONE);
 			newUsername.setText(Messages.getString("NEW_USERNAME"));
