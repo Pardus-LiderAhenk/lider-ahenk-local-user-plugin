@@ -210,7 +210,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		txtUsername.setLayoutData(data);
 		txtUsername.setTextLimit(32);
 		
-		if (commandId.equals("ADD_USER")) {
+		if ("ADD_USER".equals(commandId)) {
 			txtUsername.addModifyListener(listener);
 		}
 		
@@ -218,7 +218,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 			txtUsername.setText(this.username);
 		}
 		
-		if (commandId.equals("EDIT_USER")) {
+		if ("EDIT_USER".equals(commandId)) {
 			txtUsername.setEnabled(false);
 			Label newUsername = new Label(composite, SWT.NONE);
 			newUsername.setText(Messages.getString("NEW_USERNAME"));
@@ -450,13 +450,13 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	@Override
 	public void validateBeforeExecution() throws ValidationException {
 		
-		if(commandId == "ADD_USER" && txtUsername.getText().replaceAll("\\s+","").isEmpty()) {
+		if("ADD_USER".equals(commandId) && txtUsername.getText().replaceAll("\\s+","").isEmpty()) {
 			throw new ValidationException(Messages.getString("FILL_USERNAME_FIELD"));
 		}
-		if(commandId == "EDIT_USER" && txtNewUsername.getText().replaceAll("\\s+","").isEmpty()) {
+		if("EDIT_USER".equals(commandId) && txtNewUsername.getText().replaceAll("\\s+","").isEmpty()) {
 			throw new ValidationException(Messages.getString("FILL_USERNAME_FIELD"));
 		}
-		if(commandId == "ADD_USER" && txtPassword.getText().replaceAll("\\s+","").isEmpty()) {
+		if("ADD_USER".equals(commandId) && txtPassword.getText().replaceAll("\\s+","").isEmpty()) {
 			throw new ValidationException(Messages.getString("FILL_PASSWORD_FIELD"));
 		}
 		if(txtHome.getText().replaceAll("\\s+","").isEmpty()) {
