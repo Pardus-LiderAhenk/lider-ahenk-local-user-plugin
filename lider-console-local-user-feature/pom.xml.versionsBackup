@@ -6,9 +6,9 @@
 	<parent>
 		<groupId>tr.org.liderahenk</groupId>
 		<artifactId>local-user</artifactId>
-		<version>1.0.0-beta</version>
+		<version>1.0.0</version>
 	</parent>
-	 <version>1.0.0-SNAPSHOT</version>
+
 	<artifactId>lider-console-local-user-feature</artifactId>
 	<name>lider-console-remote-access-feature</name>
 

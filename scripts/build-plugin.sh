@@ -13,7 +13,8 @@ echo "Project path: $PRJ_ROOT_PATH"
 # Build project
 echo "Building lider & lider-console modules..."
 cd "$PRJ_ROOT_PATH"
-mvn clean install -DskipTests
+#mvn clean install -DskipTests
+mvn clean install -DskipTests -DforceContextQualifier=beta
 echo "lider & lider-console modules built successfully."
 
 # Generate Ahenk package
