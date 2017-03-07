@@ -63,6 +63,8 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	private String username;
 	private String home;
 	private String isActive;
+	private String isDesktopWritePermissionExists;
+	private String isKioskModeOn;
 	private String groups;
 	private String commandId;
 	private Map<String, String> homeMap;
@@ -87,12 +89,14 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 			"^[a-z0-9_-]{1,32}$");
 	
 	public AddEditUserDialog(Shell parentShell, String dn, String title, String username, 
-			String home, String isActive, String groups, String commandId, Map<String, String> homeMap) {
+			String home, String isActive, String isDesktopWirtePermissionExists, String isKioskModeOn, String groups, String commandId, Map<String, String> homeMap) {
 		super(parentShell, dn);
 		this.title = title;
 		this.username = username;
 		this.home = home;
 		this.isActive = isActive;
+		this.isDesktopWritePermissionExists = isDesktopWirtePermissionExists;
+		this.isKioskModeOn = isKioskModeOn;
 		this.groups = groups;
 		this.commandId = commandId;
 		this.homeMap = homeMap;
@@ -210,7 +214,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 		txtUsername.setLayoutData(data);
 		txtUsername.setTextLimit(32);
 		
-		if (commandId.equals("ADD_USER")) {
+		if ("ADD_USER".equals(commandId)) {
 			txtUsername.addModifyListener(listener);
 		}
 		
@@ -218,7 +222,7 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 			txtUsername.setText(this.username);
 		}
 		
-		if (commandId.equals("EDIT_USER")) {
+		if ("EDIT_USER".equals(commandId)) {
 			txtUsername.setEnabled(false);
 			Label newUsername = new Label(composite, SWT.NONE);
 			newUsername.setText(Messages.getString("NEW_USERNAME"));
@@ -295,11 +299,21 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 
 		btnDesktopWritePermission = new Button(composite, SWT.CHECK);
 		btnDesktopWritePermission.setText(Messages.getString("DESKTOP_WRITE_PERMISSION"));
+		
+		if(Boolean.parseBoolean(isDesktopWritePermissionExists)) {
+			btnDesktopWritePermission.setSelection(true);
+		}
+		
 		new Label(composite, SWT.NONE);
 		new Label(composite, SWT.NONE);
 
 		btnKioskMode = new Button(composite, SWT.CHECK);
 		btnKioskMode.setText(Messages.getString("KIOSK_MODE"));
+		
+		if(Boolean.parseBoolean(isKioskModeOn)) {
+			btnKioskMode.setSelection(true);
+		}
+		
 		new Label(composite, SWT.NONE);
 		
 		Composite compGroups = new Composite(composite, SWT.NONE);
@@ -450,13 +464,13 @@ public class AddEditUserDialog extends DefaultTaskDialog {
 	@Override
 	public void validateBeforeExecution() throws ValidationException {
 		
-		if(commandId == "ADD_USER" && txtUsername.getText().replaceAll("\\s+","").isEmpty()) {
+		if("ADD_USER".equals(commandId) && txtUsername.getText().replaceAll("\\s+","").isEmpty()) {
 			throw new ValidationException(Messages.getString("FILL_USERNAME_FIELD"));
 		}
-		if(commandId == "EDIT_USER" && txtNewUsername.getText().replaceAll("\\s+","").isEmpty()) {
+		if("EDIT_USER".equals(commandId) && txtNewUsername.getText().replaceAll("\\s+","").isEmpty()) {
 			throw new ValidationException(Messages.getString("FILL_USERNAME_FIELD"));
 		}
-		if(commandId == "ADD_USER" && txtPassword.getText().replaceAll("\\s+","").isEmpty()) {
+		if("ADD_USER".equals(commandId) && txtPassword.getText().replaceAll("\\s+","").isEmpty()) {
 			throw new ValidationException(Messages.getString("FILL_PASSWORD_FIELD"));
 		}
 		if(txtHome.getText().replaceAll("\\s+","").isEmpty()) {

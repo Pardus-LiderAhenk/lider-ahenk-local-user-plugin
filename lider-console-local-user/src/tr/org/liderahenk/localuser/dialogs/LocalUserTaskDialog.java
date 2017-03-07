@@ -52,27 +52,28 @@ import tr.org.liderahenk.localuser.i18n.Messages;
  *
  */
 public class LocalUserTaskDialog extends DefaultTaskDialog {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(LocalUserTaskDialog.class);
-	
+
 	private String dn;
-	
+
 	private TableViewer viewer;
-	private TableItem item;
-	
+
 	private Button btnAdd;
 	private Button btnEdit;
 	private Button btnDelete;
-	
+
 	private String user;
 	private String groups;
 	private String home;
 	private boolean isActive;
-	
-	private Map<String, String> homeMap = new HashMap<String, String>();
-	private final String[] columnTitles = new String[] { "USER", "GROUP", "HOME", "IS_ACTIVE" };
+	private boolean isDesktopWritePermissionExists;
+	private boolean isKioskModeOn;
 
-	
+	private Map<String, String> homeMap = new HashMap<String, String>();
+	private final String[] columnTitles = new String[] { "USER", "GROUP", "HOME", "IS_ACTIVE",
+			"DESKTOP_WRITE_PERMISSION", "KIOSK_MODE" };
+
 	public LocalUserTaskDialog(Shell parentShell, String dn) {
 		super(parentShell, dn);
 		this.dn = dn;
@@ -84,7 +85,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 	public String createTitle() {
 		return Messages.getString("LOCAL_USERS");
 	}
-	
+
 	private EventHandler eventHandler = new EventHandler() {
 		@Override
 		public void handleEvent(final Event event) {
@@ -96,38 +97,65 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 						TaskStatusNotification taskStatus = (TaskStatusNotification) event
 								.getProperty("org.eclipse.e4.data");
 						byte[] data = taskStatus.getResult().getResponseData();
+
 						final Map<String, Object> responseData = new ObjectMapper().readValue(data, 0, data.length,
 								new TypeReference<HashMap<String, Object>>() {
-						});
+								});
 						Display.getDefault().asyncExec(new Runnable() {
 
 							@Override
 							public void run() {
-								if (responseData != null && !responseData.isEmpty() && responseData.containsKey("users")) {
-									
+								if (responseData != null && !responseData.isEmpty()
+										&& responseData.containsKey("users")) {
+
 									@SuppressWarnings({ "unchecked" })
-									List<Map<String, Object>> usersList = (List<Map<String, Object>>) responseData.get("users");
+									List<Map<String, Object>> usersList = (List<Map<String, Object>>) responseData
+											.get("users");
 									
 									for (Map<String, Object> userMap : usersList) {
 										user = (String) userMap.get("user");
 										groups = (String) userMap.get("groups");
 										home = (String) userMap.get("home");
 										isActive = Boolean.parseBoolean((String) userMap.get("is_active"));
-										
-										item = new TableItem(viewer.getTable(), SWT.NONE);
-									    item.setText(0, user);
-									    item.setText(1, groups);
-									    item.setText(2, home);
-									    homeMap.put(user, home);
-									    
-									    if(isActive) {
-									    	item.setImage(3, new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/ok.png")));
-									    	item.setText(3, Messages.getString("TRUE"));
-									    }
-									    else {
-									    	item.setImage(3, new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/cancel.png")));
-									    	item.setText(3, Messages.getString("FALSE"));
-									    }
+										isDesktopWritePermissionExists = Boolean.parseBoolean(
+												(String) userMap.get("is_desktop_write_permission_exists"));
+										isKioskModeOn = Boolean.parseBoolean((String) userMap.get("is_kiosk_mode_on"));
+
+										TableItem item = new TableItem(viewer.getTable(), SWT.NONE);
+										item.setText(0, user);
+										item.setText(1, groups);
+										item.setText(2, home);
+										homeMap.put(user, home);
+
+										if (isActive) {
+											item.setImage(3, new Image(Display.getCurrent(),
+													this.getClass().getResourceAsStream("/icons/16/ok.png")));
+											item.setText(3, Messages.getString("TRUE"));
+										} else {
+											item.setImage(3, new Image(Display.getCurrent(),
+													this.getClass().getResourceAsStream("/icons/16/cancel.png")));
+											item.setText(3, Messages.getString("FALSE"));
+										}
+
+										if (isDesktopWritePermissionExists) {
+											item.setImage(4, new Image(Display.getCurrent(),
+													this.getClass().getResourceAsStream("/icons/16/ok.png")));
+											item.setText(4, Messages.getString("TRUE"));
+										} else {
+											item.setImage(4, new Image(Display.getCurrent(),
+													this.getClass().getResourceAsStream("/icons/16/cancel.png")));
+											item.setText(4, Messages.getString("FALSE"));
+										}
+
+										if (isKioskModeOn) {
+											item.setImage(5, new Image(Display.getCurrent(),
+													this.getClass().getResourceAsStream("/icons/16/ok.png")));
+											item.setText(5, Messages.getString("TRUE"));
+										} else {
+											item.setImage(5, new Image(Display.getCurrent(),
+													this.getClass().getResourceAsStream("/icons/16/cancel.png")));
+											item.setText(5, Messages.getString("FALSE"));
+										}
 									}
 								}
 							}
@@ -147,7 +175,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 			job.schedule();
 		}
 	};
-	
+
 	private void getData() {
 		try {
 			TaskRequest task = new TaskRequest(new ArrayList<String>(getDnSet()), DNType.AHENK, getPluginName(),
@@ -158,7 +186,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 			Notifier.error(null, Messages.getString("ERROR_ON_EXECUTE"));
 		}
 	}
-	
+
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
 		createButton(parent, IDialogConstants.CANCEL_ID, Messages.getString("EXIT"), true);
@@ -166,42 +194,43 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 
 	@Override
 	public Control createTaskDialogArea(Composite parent) {
-		
+
 		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new GridLayout(5, false));
-		
-		GridData data =  new GridData();
-		data.horizontalAlignment = SWT.FILL;
-		data.grabExcessHorizontalSpace = true;
-		composite.setLayoutData(data);
-		
+
+		GridData gData = new GridData(SWT.FILL, SWT.FILL, false, false);
+		gData.widthHint = 850;
+		gData.heightHint = 500;
+		composite.setLayoutData(gData);
+
 		btnAdd = new Button(composite, SWT.PUSH);
 		btnAdd.setText(Messages.getString("ADD"));
 		btnAdd.setImage(new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/add.png")));
 		btnAdd.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn, 
-						"ADD_USER", null, null, "false", null, "ADD_USER", homeMap);
+				AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn, "ADD_USER",
+						null, null, "false", "false", "false", null, "ADD_USER", homeMap);
 				dialog.create();
 				dialog.open();
-				
+
 				viewer.getTable().clearAll();
 				viewer.getTable().setItemCount(0);
 				getData();
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
+
 		btnDelete = new Button(composite, SWT.PUSH);
 		btnDelete.setText(Messages.getString("DELETE"));
-		btnDelete.setImage(new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/delete.png")));
+		btnDelete
+				.setImage(new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/delete.png")));
 		btnDelete.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				TableItem item = viewer.getTable().getItem(viewer.getTable().getSelectionIndex());
@@ -209,7 +238,7 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 					DeleteHomeQuestionDialog questionDialog = new DeleteHomeQuestionDialog(
 							Display.getDefault().getActiveShell(), item.getText(0), item.getText(2), getDnSet());
 					questionDialog.open();
-					
+
 				} catch (Exception e1) {
 					logger.error(e1.getMessage(), e1);
 					Notifier.error(null, Messages.getString("ERROR_ON_EXECUTE"));
@@ -218,124 +247,146 @@ public class LocalUserTaskDialog extends DefaultTaskDialog {
 				viewer.getTable().setItemCount(0);
 				getData();
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
+
 		btnEdit = new Button(composite, SWT.PUSH);
 		btnEdit.setText(Messages.getString("EDIT"));
 		btnEdit.setImage(new Image(Display.getCurrent(), this.getClass().getResourceAsStream("/icons/16/edit.png")));
 		btnEdit.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int index = viewer.getTable().getSelectionIndex();
 				if (index < 0) {
 					Notifier.warning("", Messages.getString("SELECT_ONE_ITEM"));
-				}
-				else {
+				} else {
 					TableItem tableItem = viewer.getTable().getItem(index);
-					
+
 					String isActive = "false";
 					if (tableItem.getText(3).equals(Messages.getString("TRUE"))) {
 						isActive = "true";
-					}
-					else if (tableItem.getText(3).equals(Messages.getString("FALSE"))) {
+					} else if (tableItem.getText(3).equals(Messages.getString("FALSE"))) {
 						isActive = "false";
 					}
-					AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn, 
-							"EDIT_USER", tableItem.getText(0), 
-							tableItem.getText(2), isActive, 
-							tableItem.getText(1), "EDIT_USER", homeMap);
+
+					String isDesktopWritePermissionExists = "false";
+					if (tableItem.getText(4).equals(Messages.getString("TRUE"))) {
+						isDesktopWritePermissionExists = "true";
+					} else if (tableItem.getText(4).equals(Messages.getString("FALSE"))) {
+						isDesktopWritePermissionExists = "false";
+					}
+
+					String isKioskModeOn = "false";
+					if (tableItem.getText(5).equals(Messages.getString("TRUE"))) {
+						isKioskModeOn = "true";
+					} else if (tableItem.getText(5).equals(Messages.getString("FALSE"))) {
+						isKioskModeOn = "false";
+					}
+
+					AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn,
+							"EDIT_USER", tableItem.getText(0), tableItem.getText(2), isActive,
+							isDesktopWritePermissionExists, isKioskModeOn, tableItem.getText(1), "EDIT_USER", homeMap);
 					dialog.create();
 					dialog.open();
-					
+
 					viewer.getTable().clearAll();
 					viewer.getTable().setItemCount(0);
 					getData();
 				}
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
-		viewer = new TableViewer(composite, SWT.MULTI | SWT.H_SCROLL
-		        | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
-		
-		viewer.addDoubleClickListener(new IDoubleClickListener(){
+
+		viewer = new TableViewer(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
-				
+
 				int index = viewer.getTable().getSelectionIndex();
 				TableItem tableItem = viewer.getTable().getItem(index);
-				
+
 				String isActive = "false";
 				if (tableItem.getText(3).equals(Messages.getString("TRUE"))) {
 					isActive = "true";
-				}
-				else if (tableItem.getText(3).equals(Messages.getString("FALSE"))) {
+				} else if (tableItem.getText(3).equals(Messages.getString("FALSE"))) {
 					isActive = "false";
 				}
-				
-	            AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn, 
-						"EDIT_USER", tableItem.getText(0), 
-						tableItem.getText(2), isActive, 
-						tableItem.getText(1), "EDIT_USER", homeMap);
+
+				String isDesktopWritePermissionExists = "false";
+				if (tableItem.getText(4).equals(Messages.getString("TRUE"))) {
+					isDesktopWritePermissionExists = "true";
+				} else if (tableItem.getText(4).equals(Messages.getString("FALSE"))) {
+					isDesktopWritePermissionExists = "false";
+				}
+
+				String isKioskModeOn = "false";
+				if (tableItem.getText(5).equals(Messages.getString("TRUE"))) {
+					isKioskModeOn = "true";
+				} else if (tableItem.getText(5).equals(Messages.getString("FALSE"))) {
+					isKioskModeOn = "false";
+				}
+
+				AddEditUserDialog dialog = new AddEditUserDialog(Display.getDefault().getActiveShell(), dn, "EDIT_USER",
+						tableItem.getText(0), tableItem.getText(2), isActive, isDesktopWritePermissionExists,
+						isKioskModeOn, tableItem.getText(1), "EDIT_USER", homeMap);
 				dialog.create();
 				dialog.open();
-				
+
 				viewer.getTable().clearAll();
 				viewer.getTable().setItemCount(0);
 				getData();
 			}
 		});
-		
+
 		createColumns(composite, viewer);
 		final Table table = viewer.getTable();
-	    table.setHeaderVisible(true);
-	    table.setLinesVisible(true);
-	    
-	    // define layout for the viewer
-	    GridData gridData = new GridData();
-	    gridData.horizontalSpan = 5;
-	    gridData.verticalAlignment = GridData.FILL;
-	    gridData.grabExcessHorizontalSpace = true;
-	    gridData.grabExcessVerticalSpace = true;
-	    gridData.horizontalAlignment = GridData.FILL;
-	    gridData.heightHint = 300;
-	    viewer.getControl().setLayoutData(gridData);
-	    
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+
+		// define layout for the viewer
+		GridData gridData = new GridData();
+		gridData.horizontalSpan = 5;
+		gridData.verticalAlignment = GridData.FILL;
+		gridData.grabExcessHorizontalSpace = true;
+		gridData.grabExcessVerticalSpace = true;
+		gridData.horizontalAlignment = GridData.FILL;
+		gridData.heightHint = 300;
+		viewer.getControl().setLayoutData(gridData);
+
 		return null;
 	}
-	
+
 	// create the columns for the table
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-	    int[] bounds = { 120, 120, 120, 120 };
+		int[] bounds = { 120, 120, 120, 120, 150, 120 };
 
-	    for (int i = 0; i < columnTitles.length; i++) {
-	    	createTableViewerColumn(Messages.getString(columnTitles[i]), bounds[i], i);
+		for (int i = 0; i < columnTitles.length; i++) {
+			createTableViewerColumn(Messages.getString(columnTitles[i]), bounds[i], i);
 		}
 	}
-	  
+
 	private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber) {
-		 final TableViewerColumn viewerColumn = new TableViewerColumn(viewer,
-			        SWT.NONE);
-		 final TableColumn column = viewerColumn.getColumn();
-		 column.setText(title);
-		 column.setWidth(bound);
-		 column.setResizable(true);
-		 column.setMoveable(true);
-		 return viewerColumn;
+		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
+		final TableColumn column = viewerColumn.getColumn();
+		column.setText(title);
+		column.setWidth(bound);
+		column.setResizable(true);
+		column.setMoveable(true);
+		return viewerColumn;
 	}
-	
+
 	@Override
 	public void validateBeforeExecution() throws ValidationException {
 	}
-	
+
 	@Override
 	public Map<String, Object> getParameterMap() {
 		return new HashMap<String, Object>();
