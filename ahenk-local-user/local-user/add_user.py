@@ -34,6 +34,7 @@ class AddUser(AbstractPlugin):
         self.change_owner = 'chown {0}.{0} {1}'
         self.change_permission = 'chmod 755 {}'
 
+        self.desktop_path = ''
         self.logger.debug('Parameters were initialized.')
 
     def handle_task(self):
@@ -67,14 +68,16 @@ class AddUser(AbstractPlugin):
                 self.execute(self.disable_user.format(self.username))
                 self.logger.debug('The user has been disabled.')
 
+            self.execute("mkdir " + self.home + "/Masaüstü")
+            self.desktop_path = self.home + "/Masaüstü"
+
             if self.desktop_write_permission == "true":
-                self.execute('chown -R {0}:{1} /home/{2}/Masaüstü'.format(self.username, self.username, self.username))
-                self.logger.debug('chown -R {0}:{1} /home/{2}/Masaüstü'.format(self.username, self.username, self.username));
+                self.execute('chown -R {0}:{1} {2}'.format(self.username, self.username, self.desktop_path))
+                self.logger.debug('chown -R {0}:{1} {2}'.format(self.username, self.username, self.desktop_path))
 
             elif self.desktop_write_permission == "false":
-                self.execute('chown -R root:root /home/{0}/Masaüstü'.format(self.username))
-                self.logger.debug('chown -R root:root /home/{0}/Masaüstü'.format(self.username))
-
+                self.execute('chown -R root:root {0}'.format(self.desktop_path))
+                self.logger.debug('chown -R root:root {0}'.format(self.desktop_path))
 
             #
             # Handle kiosk mode

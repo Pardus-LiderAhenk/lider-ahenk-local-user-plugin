@@ -37,6 +37,7 @@ class EditUser(AbstractPlugin):
         self.change_permission = 'chmod 755 {}'
         self.logout_user = 'pkill -u {}'
         self.kill_all_process = 'killall -KILL -u {}'
+        self.desktop_path = ''
 
         self.logger.debug('Parameters were initialized.')
 
@@ -82,13 +83,24 @@ class EditUser(AbstractPlugin):
                 self.execute(self.remove_all_groups.format(self.username))
                 self.logger.debug('Removed all groups for user: {}'.format(self.username))
 
-            if self.desktop_write_permission == "true":
-                self.execute('chown -R {0}:{1} /home/{2}/Masaüstü'.format(self.username, self.username, self.username))
-                self.logger.debug('chown -R {0}:{1} /home/{2}/Masaüstü'.format(self.username, self.username, self.username));
+            if self.is_exist("{0}/Masaüstü/".format(self.home)):
+                self.desktop_path = "{0}/Masaüstü/".format(self.home)
+                self.logger.debug("Desktop path for user '{0}' : {1}".format(self.username, self.desktop_path))
+            elif self.is_exist("{0}/Desktop/".format(self.home)):
+                self.desktop_path = "{0}/Desktop/".format(self.home)
+                self.logger.debug("Desktop path for user '{0}' : {1}".format(self.username, self.desktop_path))
+            else:
+                self.logger.debug('Desktop write permission could not changed. Desktop path not found for user "{0}"'.format(self.username))
 
-            elif self.desktop_write_permission == "false":
-                self.execute('chown -R root:root /home/{0}/Masaüstü'.format(self.username))
-                self.logger.debug('chown -R root:root /home/{0}/Masaüstü'.format(self.username))
+            if self.desktop_path != "":
+
+                if self.desktop_write_permission == "true":
+                    self.execute('chown -R {0}:{1} {2}'.format(self.username, self.username, self.desktop_path))
+                    self.logger.debug('chown -R {0}:{1} {2}'.format(self.username, self.username, self.desktop_path))
+
+                elif self.desktop_write_permission == "false":
+                    self.execute('chown -R root:root {0}'.format(self.desktop_path))
+                    self.logger.debug('chown -R root:root {0}'.format(self.desktop_path))
 
             #
             # Handle kiosk mode
