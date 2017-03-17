@@ -21,6 +21,7 @@ class EditUser(AbstractPlugin):
         self.groups = self.task['groups']
         self.desktop_write_permission = self.task['desktop_write_permission']
         self.kiosk_mode = self.task['kiosk_mode']
+        self.current_home = self.execute('eval echo ~{0}'.format(self.username))[1]
 
         self.script = '/bin/bash ' + self.Ahenk.plugins_path() + 'local-user/scripts/{0}'
 
@@ -37,8 +38,9 @@ class EditUser(AbstractPlugin):
         self.change_permission = 'chmod 755 {}'
         self.logout_user = 'pkill -u {}'
         self.kill_all_process = 'killall -KILL -u {}'
-        self.desktop_path = ''
 
+        self.message = ''
+        self.message_code_level = 1
         self.logger.debug('Parameters were initialized.')
 
     def handle_task(self):
@@ -59,11 +61,10 @@ class EditUser(AbstractPlugin):
                 self.execute(self.change_password.format('\'{}\''.format(shadow_password), self.username))
                 self.logger.debug('Changed password.')
 
-            if not self.is_exist(self.home):
-                self.create_directory(self.home)
-
-            self.execute(self.change_home.format(self.home, self.username))
-            self.logger.debug('Changed home directory to: {}'.format(self.home))
+            if self.current_home != self.home:
+                self.execute(self.kill_processes.format(self.username))
+                self.execute(self.change_home.format(self.home, self.username))
+                self.logger.debug('Changed home directory to: {}'.format(self.home))
 
             self.execute(self.change_owner.format(self.username, self.home))
             self.execute(self.change_permission.format(self.home))
@@ -83,35 +84,22 @@ class EditUser(AbstractPlugin):
                 self.execute(self.remove_all_groups.format(self.username))
                 self.logger.debug('Removed all groups for user: {}'.format(self.username))
 
-            if self.is_exist("{0}/Masaüstü/".format(self.home)):
-                self.desktop_path = "{0}/Masaüstü/".format(self.home)
-                self.logger.debug("Desktop path for user '{0}' : {1}".format(self.username, self.desktop_path))
-            elif self.is_exist("{0}/Desktop/".format(self.home)):
-                self.desktop_path = "{0}/Desktop/".format(self.home)
-                self.logger.debug("Desktop path for user '{0}' : {1}".format(self.username, self.desktop_path))
-            else:
-                self.logger.debug('Desktop write permission could not changed. Desktop path not found for user "{0}"'.format(self.username))
+            if self.desktop_write_permission == "true":
+                self.execute('chown -R {0}:{0} {1}/Masaüstü'.format(self.username, self.current_home))
+                self.logger.debug('Desktop write permission is true');
 
-            if self.desktop_path != "":
-
-                if self.desktop_write_permission == "true":
-                    self.execute('chown -R {0}:{1} {2}'.format(self.username, self.username, self.desktop_path))
-                    self.logger.debug('chown -R {0}:{1} {2}'.format(self.username, self.username, self.desktop_path))
-
-                elif self.desktop_write_permission == "false":
-                    self.execute('chown -R root:root {0}'.format(self.desktop_path))
-                    self.logger.debug('chown -R root:root {0}'.format(self.desktop_path))
+            elif self.desktop_write_permission == "false":
+                self.execute('chown -R root:root {0}/Masaüstü'.format(self.current_home))
+                self.logger.debug('Desktop write permission is false')
 
             #
             # Handle kiosk mode
             #
             result_code, p_out, p_err = self.execute(self.script.format('find_locked_users.sh'), result=True)
             if result_code != 0:
-                self.logger.error(
-                    'Error occurred while managing kiosk mode.')
-                self.context.create_response(code=self.message_code.TASK_ERROR.value,
-                     message='Masaüstü kilidi ayarlanırken hata oluştu.')
-                return
+                self.logger.error('Error occurred while managing kiosk mode.')
+                self.message_code_level += 1
+                self.message = 'Masaüstü kilidi ayarlanırken hata oluştu.'
             locked_users = []
             if p_out:
                 self.logger.debug('pout {0}'.format(str(p_out)))
@@ -138,8 +126,14 @@ class EditUser(AbstractPlugin):
                     self.execute(self.script.format('remove_locked_users.sh '))
 
             self.logger.info('User has been edited successfully.')
-            self.context.create_response(code=self.message_code.TASK_PROCESSED.value,
-                                         message='Kullanıcı başarıyla düzenlendi.')
+
+            if self.message_code_level == 1:
+                response_code = self.message_code.TASK_PROCESSED.value
+                response_message = 'Kullanıcı başarıyla düzenlendi.'
+            else:
+                response_code = self.message_code.TASK_WARNING.value
+                response_message = 'Kullanıcı düzenlendi; fakat {0}'.format(self.message)
+            self.context.create_response(code=response_code, message=response_message)
 
         except Exception as e:
             self.logger.error('A problem occurred while handling Local-User task: {0}'.format(str(e)))
