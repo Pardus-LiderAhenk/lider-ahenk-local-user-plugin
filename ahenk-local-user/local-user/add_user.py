@@ -70,14 +70,16 @@ class AddUser(AbstractPlugin):
 
             self.execute("mkdir " + self.home + "/Masaüstü")
             self.desktop_path = self.home + "/Masaüstü"
+            self.execute(self.change_owner.format(self.username, self.desktop_path))
+            self.logger.debug('owner is changed for user Masaüstü directory')
 
             if self.desktop_write_permission == "true":
-                self.execute('chown -R {0}:{1} {2}'.format(self.username, self.username, self.desktop_path))
-                self.logger.debug('chown -R {0}:{1} {2}'.format(self.username, self.username, self.desktop_path))
+                self.set_permission(self.desktop_path, 775)
+                self.logger.debug('Desktop write permission is true')
 
             elif self.desktop_write_permission == "false":
-                self.execute('chown -R root:root {0}'.format(self.desktop_path))
-                self.logger.debug('chown -R root:root {0}'.format(self.desktop_path))
+                self.set_permission(self.desktop_path, 575)
+                self.logger.debug('Desktop write permission is false')
 
             #
             # Handle kiosk mode

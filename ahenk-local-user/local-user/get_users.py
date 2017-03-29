@@ -61,12 +61,17 @@ class GetUsers(AbstractPlugin):
                         'Desktop write permission could not get. Desktop path not found for user "{0}"'.format(
                             str(detail[0]).strip()))
 
+                result_code, p_out, p_err = self.execute(' stat -c "%a %n" ' + self.desktop_path)
+                self.logger.debug('sudo stat -c "%a %n" ' + self.desktop_path)
                 is_desktop_write_permission_exists = 'false'
-                self.logger.debug("sudo -u " + str(detail[0]).strip() + " touch -c " + self.desktop_path + " 2>&1 | grep 'Permission denied'")
-                result_code, p_out, p_err = self.execute(" touch -c " + self.desktop_path + " 2>&1 | grep 'Permission denied'", as_user=str(detail[0]).strip())
-                self.logger.debug("result codeee : " + str(result_code).strip())
-                if result_code == 1:
-                    is_desktop_write_permission_exists = 'true'
+                if result_code == 0:
+                    permission_codes = p_out.split()
+                    self.logger.debug("permission codes : " + str(permission_codes))
+                    if len(permission_codes) > 0:
+                        permission_code = permission_codes[0].strip()
+                        self.logger.debug("permission code is : " + permission_code)
+                        if permission_code == "775":
+                            is_desktop_write_permission_exists = 'true'
 
                 is_kiosk_mode_on = 'false'
                 self.logger.debug('Kiosk mode info will be taken')
