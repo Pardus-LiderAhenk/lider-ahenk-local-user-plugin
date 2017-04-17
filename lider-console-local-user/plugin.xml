@@ -73,5 +73,15 @@
         label="%command.get.groups.task">
   </task>
   	</extension>
+  	
+  	
+  	
+  	
+	<!-- Add extension point contribution for "policy execution" dialogs -->
+	<extension
+  		point="tr.org.liderahenk.liderconsole.core.taskmenu">
+  		<taskItem label="%command.task" pluginName="local-user" pluginVersion="1.0.0" taskCommandId="tr.org.liderahenk.liderconsole.commands.LocalUserTask" selectionType="single" />
+  	</extension>
+  	
   
 </plugin>
