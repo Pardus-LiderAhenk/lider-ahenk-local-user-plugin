@@ -85,11 +85,11 @@ class EditUser(AbstractPlugin):
                 self.logger.debug('Removed all groups for user: {}'.format(self.username))
 
             if self.desktop_write_permission == "true":
-                self.execute('chown -R {0}:{0} {1}/Masaüstü'.format(self.username, self.current_home))
-                self.logger.debug('Desktop write permission is true');
+                self.set_permission(self.current_home.strip() + "/Masaüstü", 775)
+                self.logger.debug('Desktop write permission is true')
 
             elif self.desktop_write_permission == "false":
-                self.execute('chown -R root:root {0}/Masaüstü'.format(self.current_home))
+                self.set_permission(self.current_home.strip() + "/Masaüstü", 575)
                 self.logger.debug('Desktop write permission is false')
 
             #
