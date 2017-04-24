@@ -77,10 +77,14 @@
   	
   	
   	
-	<!-- Add extension point contribution for "policy execution" dialogs -->
+	<!-- Add extension point contribution for "task execution" dialogs -->
 	<extension
   		point="tr.org.liderahenk.liderconsole.core.taskmenu">
-  		<taskItem label="%command.task" pluginName="local-user" pluginVersion="1.0.0" taskCommandId="tr.org.liderahenk.liderconsole.commands.LocalUserTask" description="Sisteme yeni kullanıcı ekleme, kullanıcıyı silme ve varolan kullanıcı üzerinde değişiklikler yapmayı sağlayan eklentidir.&#xA;Yerel kullanıcı işlemleri için tıklayınız.." />
+  		<taskItem label="%command.task" pluginName="local-user"
+  		pluginVersion="1.0.0"
+  		taskCommandId="tr.org.liderahenk.liderconsole.commands.LocalUserTask" 
+  		description="Sisteme yeni kullanıcı ekleme, kullanıcıyı silme ve varolan kullanıcı üzerinde değişiklikler yapmayı sağlayan eklentidir.&#xA;Yerel kullanıcı işlemleri için tıklayınız.." 
+  		imagePath="users.png"/>
   	</extension>
   	
   
