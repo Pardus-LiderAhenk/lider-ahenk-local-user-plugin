@@ -7,7 +7,7 @@ Standards-Version: 3.9.6
 Homepage: http://www.liderahenk.org.tr
 
 Package: ahenk-local-user
-Version: 1.0.0
+Version: 1.1
 Architecture: any
 Depends: python3 (>= 3), whois
 Description: Lider Ahenk ahenk-local-user plugin

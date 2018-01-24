@@ -81,7 +81,7 @@
 	<extension
   		point="tr.org.liderahenk.liderconsole.core.taskmenu">
   		<taskItem label="%command.task" pluginName="local-user"
-  		pluginVersion="1.0.0"
+  		pluginVersion="1.1"
   		taskCommandId="tr.org.liderahenk.liderconsole.commands.LocalUserTask" 
   		description="Sisteme yeni kullanıcı ekleme, kullanıcıyı silme ve varolan kullanıcı üzerinde değişiklikler yapmayı sağlayan eklentidir.&#xA;Yerel kullanıcı işlemleri için tıklayınız.." 
   		imagePath="users.png"/>
