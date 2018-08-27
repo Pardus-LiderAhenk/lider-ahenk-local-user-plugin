@@ -3,9 +3,9 @@
 # Author:Mine DOGAN <mine.dogan@agem.com.tr>
 
 import json
+from pathlib import Path
 
 from base.plugin.abstract_plugin import AbstractPlugin
-
 
 class GetUsers(AbstractPlugin):
     def __init__(self, task, context):
@@ -14,13 +14,11 @@ class GetUsers(AbstractPlugin):
         self.context = context
         self.logger = self.get_logger()
         self.message_code = self.get_message_code()
-
         self.script = '/bin/bash ' + self.Ahenk.plugins_path() + 'local-user/scripts/{0}'
 
         self.command_users = 'awk -F: \'{print $1 ":" $6 ":" $7}\' /etc/passwd | grep /bin/bash'
         self.command_user_groups = 'groups {}'
         self.command_not_active = 'egrep \':\!\' /etc/shadow |awk -F: \'{print $1}\''
-        self.desktop_path = '/home/agem/Masaüstü'
 
         self.logger.debug('Parameters were initialized.')
 
@@ -75,6 +73,15 @@ class GetUsers(AbstractPlugin):
 
                 is_kiosk_mode_on = 'false'
                 self.logger.debug('Kiosk mode info will be taken')
+                file_xfce4_panel = Path("/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml")
+                if not file_xfce4_panel.exists():
+                    self.logger.error(
+                        'PANEL XML NOT FOUND COPY')
+                    source_path = "{0}local-user/panelconf/xfce4-panel.xml".format(self.Ahenk.plugins_path())
+                    self.logger.info("----->>>>" + source_path)
+                    self.copy_file(source_path, "/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml")
+                    self.logger.error(
+                        'FILE IS COPIED')
                 result_code, p_out, p_err = self.execute(self.script.format('find_locked_users.sh'), result=True)
                 if result_code != 0:
                     self.logger.error(

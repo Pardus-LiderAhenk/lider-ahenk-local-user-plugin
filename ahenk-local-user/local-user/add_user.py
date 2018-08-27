@@ -3,7 +3,7 @@
 # Author:Mine DOGAN <mine.dogan@agem.com.tr>
 
 from base.plugin.abstract_plugin import AbstractPlugin
-
+from pathlib import Path
 
 class AddUser(AbstractPlugin):
     def __init__(self, task, context):
@@ -67,11 +67,16 @@ class AddUser(AbstractPlugin):
             elif self.active == "false":
                 self.execute(self.disable_user.format(self.username))
                 self.logger.debug('The user has been disabled.')
+            agent_language = self.get_language()
+            if agent_language == "tr_TR":
+                desktop_name = "Masaüstü"
+            else:
+                desktop_name = "Desktop"
 
-            self.execute("mkdir " + self.home + "/Masaüstü")
-            self.desktop_path = self.home + "/Masaüstü"
+            self.execute("mkdir " + self.home + "/" + desktop_name)
+            self.desktop_path = self.home + "/" + desktop_name
             self.execute(self.change_owner.format(self.username, self.desktop_path))
-            self.logger.debug('owner is changed for user Masaüstü directory')
+            self.logger.debug('owner is changed for user {0} directory'.format(desktop_name))
 
             if self.desktop_write_permission == "true":
                 self.set_permission(self.desktop_path, 775)
@@ -84,6 +89,17 @@ class AddUser(AbstractPlugin):
             #
             # Handle kiosk mode
             #
+            # if xfce4-panel.xml does not exist copy it from ~/.config/xfce4/xfconf/xfce-perchannel-xml/
+            file_xfce4_panel = Path("/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml")
+            if not file_xfce4_panel.exists():
+                self.logger.error(
+                    'PANEL XML NOT FOUND COPY')
+                source_path = "{0}local-user/panelconf/xfce4-panel.xml".format(self.Ahenk.plugins_path())
+                self.logger.info("----->>>>" + source_path)
+                self.copy_file(source_path, "/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml")
+                self.logger.error(
+                    'FILE IS COPIED')
+
             result_code, p_out, p_err = self.execute(self.script.format('find_locked_users.sh'), result=True)
             if result_code != 0:
                 self.logger.error(
@@ -111,6 +127,7 @@ class AddUser(AbstractPlugin):
                     locked_users.remove(self.username)
                 if locked_users:
                     locked_users_str = ";".join(locked_users)
+                    # if xfce4-panel.xml doesn not exist copy it from ~/.config/xfce4/xfconf/xfce-perchannel-xml/
                     comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"' + ".*$/" + '<channel name="xfce4-panel" version="1.0" locked="' + locked_users_str + '">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
                     result_code1, p_out1, p_err1 = self.execute(comm)
                 else:

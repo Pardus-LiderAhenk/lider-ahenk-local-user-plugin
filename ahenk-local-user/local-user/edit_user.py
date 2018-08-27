@@ -3,7 +3,7 @@
 # Author:Mine DOGAN <mine.dogan@agem.com.tr>
 
 from base.plugin.abstract_plugin import AbstractPlugin
-
+from pathlib import Path
 
 class EditUser(AbstractPlugin):
     def __init__(self, task, context):
@@ -84,17 +84,32 @@ class EditUser(AbstractPlugin):
                 self.execute(self.remove_all_groups.format(self.username))
                 self.logger.debug('Removed all groups for user: {}'.format(self.username))
 
+            agent_language = self.get_language()
+            if agent_language == "tr_TR":
+                desktop_name = "Masaüstü"
+            else:
+                desktop_name = "Desktop"
             if self.desktop_write_permission == "true":
-                self.set_permission(self.current_home.strip() + "/Masaüstü", 775)
+                self.set_permission(self.current_home.strip() + "/" + desktop_name, 775)
                 self.logger.debug('Desktop write permission is true')
 
             elif self.desktop_write_permission == "false":
-                self.set_permission(self.current_home.strip() + "/Masaüstü", 575)
+                self.set_permission(self.current_home.strip() + "/" + desktop_name, 575)
                 self.logger.debug('Desktop write permission is false')
 
             #
             # Handle kiosk mode
             #
+            # if xfce4-panel.xml does not exist copy it from ~/.config/xfce4/xfconf/xfce-perchannel-xml/
+            file_xfce4_panel = Path("/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml")
+            if not file_xfce4_panel.exists():
+                self.logger.error(
+                    'PANEL XML NOT FOUND COPY')
+                source_path = "{0}local-user/panelconf/xfce4-panel.xml".format(self.Ahenk.plugins_path())
+                self.logger.info("----->>>>" + source_path)
+                self.copy_file(source_path, "/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml")
+                self.logger.error(
+                    'FILE IS COPIED')
             result_code, p_out, p_err = self.execute(self.script.format('find_locked_users.sh'), result=True)
             if result_code != 0:
                 self.logger.error('Error occurred while managing kiosk mode.')

@@ -1,3 +1,6 @@
+#
+# Handle kiosk mode
+#
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # Author:Mine DOGAN <mine.dogan@agem.com.tr>
