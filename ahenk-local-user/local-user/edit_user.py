@@ -3,6 +3,7 @@
 # Author:Mine DOGAN <mine.dogan@agem.com.tr>
 
 from base.plugin.abstract_plugin import AbstractPlugin
+import locale
 from pathlib import Path
 
 class EditUser(AbstractPlugin):
@@ -84,7 +85,8 @@ class EditUser(AbstractPlugin):
                 self.execute(self.remove_all_groups.format(self.username))
                 self.logger.debug('Removed all groups for user: {}'.format(self.username))
 
-            agent_language = self.get_language()
+            locale_info = locale.getdefaultlocale()
+            agent_language = locale_info[0]
             if agent_language == "tr_TR":
                 desktop_name = "Masaüstü"
             else:

@@ -3,6 +3,7 @@
 # Author:Mine DOGAN <mine.dogan@agem.com.tr>
 
 from base.plugin.abstract_plugin import AbstractPlugin
+import locale
 from pathlib import Path
 
 class AddUser(AbstractPlugin):
@@ -67,7 +68,9 @@ class AddUser(AbstractPlugin):
             elif self.active == "false":
                 self.execute(self.disable_user.format(self.username))
                 self.logger.debug('The user has been disabled.')
-            agent_language = self.get_language()
+
+            locale_info = locale.getdefaultlocale()
+            agent_language = locale_info[0]
             if agent_language == "tr_TR":
                 desktop_name = "Masaüstü"
             else:
