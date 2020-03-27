@@ -11,6 +11,6 @@ def info():
     inf['task'] = True
     inf['user_oriented'] = False
     inf['machine_oriented'] = False
-    inf['developer'] = 'mine.dogan@agem.com.tr'
+    inf['developer'] = 'tuncay.colak@tubitak.gov.tr'
 
     return inf

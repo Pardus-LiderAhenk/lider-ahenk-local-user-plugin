@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # Author:Mine DOGAN <mine.dogan@agem.com.tr>
+# Author:Tuncay ÇOLAK <tuncay.colak@tubitak.gov.tr>
 
 from base.plugin.abstract_plugin import AbstractPlugin
 from pathlib import Path
@@ -41,10 +42,21 @@ class EditUser(AbstractPlugin):
 
         self.message = ''
         self.message_code_level = 1
+
+        self.xfce4_session = "/usr/bin/xfce4-session"
+        self.gnome_session = "/usr/bin/gnome-session"
+        self.desktop_env = None
         self.logger.debug('Parameters were initialized.')
 
     def handle_task(self):
         try:
+            result_code, p_out, p_err = self.execute("ls {}".format(self.gnome_session))
+            if result_code == 0:
+                self.desktop_env = "gnome"
+            result_code, p_out, p_err = self.execute("ls {}".format(self.xfce4_session))
+            if result_code == 0:
+                self.desktop_env = "xfce"
+
             self.execute(self.logout_user.format(self.username))
             self.execute(self.kill_all_process.format(self.username))
             self.logger.debug('Killed all processes for {}'.format(self.username))
@@ -96,40 +108,42 @@ class EditUser(AbstractPlugin):
             elif self.desktop_write_permission == "false":
                 self.set_permission(self.current_home.strip() + "/" + desktop_name, 575)
                 self.logger.debug('Desktop write permission is false')
-
             #
             # Handle kiosk mode
             #
-            result_code, p_out, p_err = self.execute(self.script.format('find_locked_users.sh'), result=True)
-            if result_code != 0:
-                self.logger.error('Error occurred while managing kiosk mode.')
-                self.message_code_level += 1
-                self.message = 'Masaüstü kilidi ayarlanırken hata oluştu.'
-            locked_users = []
-            if p_out:
-                self.logger.debug('pout {0}'.format(str(p_out)))
-                locked_users = p_out.strip().split(';')
-            if self.kiosk_mode == "true":
-                self.logger.debug('Kiosk mode is active {0}'.format(str(locked_users)))
-                if self.username not in locked_users:
-                    self.logger.debug('Adding user {0} to locked users'.format(self.username))
-                    locked_users.append(self.username)
-                locked_users_str = ";".join(locked_users)
-                self.logger.debug('Users: {0}'.format(locked_users_str))
-                comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"' + ".*$/" + '<channel name="xfce4-panel" version="1.0" locked="' + locked_users_str + '">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
-                result_code1, p_out1, p_err1 = self.execute(comm)
-            elif self.kiosk_mode == "false":
-                self.logger.debug('Kiok mode is NOT active')
-                if self.username in locked_users:
-                    self.logger.debug('Removing user {0} from locked users'.format(self.username))
-                    locked_users.remove(self.username)
-                if locked_users:
+            if self.desktop_env == "xfce":
+                result_code, p_out, p_err = self.execute(self.script.format('find_locked_users.sh'), result=True)
+                if result_code != 0:
+                    self.logger.error('Error occurred while managing kiosk mode.')
+                    self.message_code_level += 1
+                    self.message = 'Masaüstü kilidi ayarlanırken hata oluştu.'
+                locked_users = []
+                if p_out:
+                    self.logger.debug('pout {0}'.format(str(p_out)))
+                    locked_users = p_out.strip().split(';')
+
+                if self.kiosk_mode == "true":
+                    self.logger.debug('Kiosk mode is active {0}'.format(str(locked_users)))
+                    if self.username not in locked_users:
+                        self.logger.debug('Adding user {0} to locked users'.format(self.username))
+                        locked_users.append(self.username)
                     locked_users_str = ";".join(locked_users)
+                    self.logger.debug('Users: {0}'.format(locked_users_str))
                     comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"' + ".*$/" + '<channel name="xfce4-panel" version="1.0" locked="' + locked_users_str + '">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
                     result_code1, p_out1, p_err1 = self.execute(comm)
-                else:
-                    self.execute(self.script.format('remove_locked_users.sh '))
-
+                elif self.kiosk_mode == "false":
+                    self.logger.debug('Kiok mode is NOT active')
+                    if self.username in locked_users:
+                        self.logger.debug('Removing user {0} from locked users'.format(self.username))
+                        locked_users.remove(self.username)
+                    if locked_users:
+                        locked_users_str = ";".join(locked_users)
+                        comm = "sed -i 's/^.*" + '<channel name="xfce4-panel"' + ".*$/" + '<channel name="xfce4-panel" version="1.0" locked="' + locked_users_str + '">' + "/' /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+                        result_code1, p_out1, p_err1 = self.execute(comm)
+                    else:
+                        self.execute(self.script.format('remove_locked_users.sh '))
+            else:
+                self.logger.info("Desktop environ is GNOME. Kiosk mode not setting")
             self.logger.info('User has been edited successfully.')
 
             if self.message_code_level == 1:
@@ -144,7 +158,6 @@ class EditUser(AbstractPlugin):
             self.logger.error('A problem occurred while handling Local-User task: {0}'.format(str(e)))
             self.context.create_response(code=self.message_code.TASK_ERROR.value,
                                          message='Local-User görevi çalıştırılırken bir hata oluştu.')
-
 
 def handle_task(task, context):
     edit_user = EditUser(task, context)

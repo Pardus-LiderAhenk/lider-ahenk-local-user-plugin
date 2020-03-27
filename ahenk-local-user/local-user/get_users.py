@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # Author:Mine DOGAN <mine.dogan@agem.com.tr>
+# Author:Tuncay ÇOLAK <tuncay.colak@tubitak.gov.tr>
 
 import json
 from pathlib import Path
@@ -19,17 +20,26 @@ class GetUsers(AbstractPlugin):
         self.command_users = 'awk -F: \'{print $1 ":" $6 ":" $7}\' /etc/passwd | grep /bin/bash'
         self.command_user_groups = 'groups {}'
         self.command_not_active = 'egrep \':\!\' /etc/shadow |awk -F: \'{print $1}\''
-
+        self.command_get_groups = 'cut -d: -f1 /etc/group'
+        self.xfce4_session = "/usr/bin/xfce4-session"
+        self.gnome_session = "/usr/bin/gnome-session"
+        self.desktop_env = None
         self.logger.debug('Parameters were initialized.')
 
     def handle_task(self):
 
         try:
             user_list = []
-
             result_code, p_out, p_err = self.execute(self.command_users)
             lines = p_out.split('\n')
             lines.pop()
+
+            result_code, p_out, p_err = self.execute("ls {}".format(self.gnome_session))
+            if result_code == 0:
+                self.desktop_env = "gnome"
+            result_code, p_out, p_err = self.execute("ls {}".format(self.xfce4_session))
+            if result_code == 0:
+                self.desktop_env = "xfce"
 
             for line in lines:
                 detail = line.split(':')
@@ -38,9 +48,7 @@ class GetUsers(AbstractPlugin):
                 groups = p_out.split(':')
                 groups[1] = str(groups[1]).strip()
                 groups[1] = groups[1].replace("'", "").replace(" ", ", ")
-
                 is_active = 'true'
-
                 result_code, p_out, p_err = self.execute(self.command_not_active)
                 users = p_out.split('\n')
 
@@ -71,41 +79,48 @@ class GetUsers(AbstractPlugin):
                         if permission_code == "775":
                             is_desktop_write_permission_exists = 'true'
 
-                is_kiosk_mode_on = 'false'
-                self.logger.debug('Kiosk mode info will be taken')
-                file_xfce4_panel = Path("/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml")
-                if not file_xfce4_panel.exists():
-                    self.logger.error(
-                        'PANEL XML NOT FOUND COPY')
-                    source_path = "{0}local-user/panelconf/xfce4-panel.xml".format(self.Ahenk.plugins_path())
-                    self.logger.info("----->>>>" + source_path)
-                    self.copy_file(source_path, "/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml")
-                    self.logger.error(
-                        'FILE IS COPIED')
-                result_code, p_out, p_err = self.execute(self.script.format('find_locked_users.sh'), result=True)
-                if result_code != 0:
-                    self.logger.error(
-                        'Error occurred while finding locked users.')
-                if p_out:
-                    self.logger.debug('locked users are {0}'.format(str(p_out)))
-                    locked_users = p_out.strip().split(';')
-                    # self.logger.debug("user is " + str(detail[0]).strip())
-                    # self.logger.debug("locked users are " + str(locked_users))
-                    if str(detail[0]).strip() in locked_users:
-                        is_kiosk_mode_on = 'true'
-                self.logger.debug('Kiosk mode info is taken')
+                if self.desktop_env == "xfce":
+                    is_kiosk_mode_on = 'false'
+                    self.logger.debug('Kiosk mode info will be taken')
+                    file_xfce4_panel = Path("/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml")
+                    if not file_xfce4_panel.exists():
+                        self.logger.error(
+                            'PANEL XML NOT FOUND COPY')
+                        source_path = "{0}local-user/panelconf/xfce4-panel.xml".format(self.Ahenk.plugins_path())
+                        self.logger.info("----->>>>" + source_path)
+                        self.copy_file(source_path, "/etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml")
+                        self.logger.error(
+                            'FILE IS COPIED')
+                    result_code, p_out, p_err = self.execute(self.script.format('find_locked_users.sh'), result=True)
+                    if result_code != 0:
+                        self.logger.error(
+                            'Error occurred while finding locked users.')
+                    if p_out:
+                        self.logger.debug('locked users are {0}'.format(str(p_out)))
+                        locked_users = p_out.strip().split(';')
+                        # self.logger.debug("user is " + str(detail[0]).strip())
+                        # self.logger.debug("locked users are " + str(locked_users))
+                        if str(detail[0]).strip() in locked_users:
+                            is_kiosk_mode_on = 'true'
+                    self.logger.debug('Desktop environ is XFCE. Kiosk mode info is taken')
+                else:
+                    is_kiosk_mode_on = "true"
+                    self.logger.info("Desktop environ is GNOME. Return kiok mode TRUE")
 
                 user = {'user': str(detail[0]).strip(), 'groups': groups[1], 'home': detail[1], 'is_active': is_active, 'is_desktop_write_permission_exists': is_desktop_write_permission_exists, 'is_kiosk_mode_on': is_kiosk_mode_on}
                 user_list.append(user)
-
-                self.logger.debug(
-                    'user: {0}, groups: {1}, home: {2}, is_active: {3}'.format(str(detail[0]).strip(), groups[1],
-                                                                               detail[1], is_active))
-
+                self.logger.debug('user: {0}, groups: {1}, home: {2}, is_active: {3}'.format(str(detail[0]).strip(), groups[1], detail[1], is_active))
             self.logger.info('Local User task is handled successfully')
+            #
+            # get all groups
+            #
+            result_code, p_out, p_err = self.execute(self.command_get_groups)
+            all_groups = p_out.split('\n')
+            all_groups.pop()
+
             self.context.create_response(code=self.message_code.TASK_PROCESSED.value,
                                          message='Kullanıcı listesi başarıyla getirildi.',
-                                         data=json.dumps({'users': user_list}),
+                                         data=json.dumps({'users': user_list, 'all_groups': all_groups}),
                                          content_type=self.get_content_type().APPLICATION_JSON.value)
 
         except Exception as e:

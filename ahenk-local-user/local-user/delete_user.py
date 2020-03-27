@@ -1,12 +1,8 @@
-#
-# Handle kiosk mode
-#
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # Author:Mine DOGAN <mine.dogan@agem.com.tr>
 
 from base.plugin.abstract_plugin import AbstractPlugin
-
 
 class DeleteUser(AbstractPlugin):
     def __init__(self, task, context):

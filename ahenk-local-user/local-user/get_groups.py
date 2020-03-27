@@ -3,9 +3,7 @@
 # Author:Mine DOGAN <mine.dogan@agem.com.tr>
 
 import json
-
 from base.plugin.abstract_plugin import AbstractPlugin
-
 
 class GetGroups(AbstractPlugin):
     def __init__(self, task, context):
